@@ -1,1298 +1,1079 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import {
-  Search,
-  Download,
-  Upload,
-  Plus,
-  Eye,
-  Calculator,
-  FileSpreadsheet,
-  Moon,
-  Sun,
-  RefreshCw,
-  Globe,
-  Box,
-  Calendar,
-  X,
-  Terminal,
-  ShieldCheck,
-  Info,
-  AlertTriangle,
-  CheckCircle,
-  Clock,
-  ArrowRight,
-  Layers
-} from 'lucide-react';
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SPD FOOD - Raw Material Master Data & Lead Time Calculator</title>
 
-const INITIAL_MATERIALS = [
-  {
-    id: 'MAT-10029',
-    materialCode: 'MAT-10029',
-    materialName: 'Titanium Alloy Rod Grade 5 (6Al-4V)',
-    vendorNumber: 'VND-801',
-    vendorName: 'Apex Metals & Alloys Corp',
-    origin: 'Germany',
-    packingSize: '20 Bars / Wooden Bundle',
-    shelfLife: 1825,
-    currentPrice: 420.50,
-    moq: 100,
-    leadTimeFC: 18,
-    leadTimeNonFC: 35,
-    lastUpdateDate: '2026-07-28',
-    additionalNotes: 'Critical aerospace component. Subject to tariff adjustments.',
-    category: 'Raw Metals',
-    currentStock: 450,
-    monthlyConsumption: 120,
-    safetyStock: 80,
-    forecastDemand: 130
-  },
-  {
-    id: 'MAT-30411',
-    materialCode: 'MAT-30411',
-    materialName: 'High-Grade Polypropylene Resin Pellets',
-    vendorNumber: 'VND-804',
-    vendorName: 'PolymerTech Global Ltd',
-    origin: 'South Korea',
-    packingSize: '25 kg Moisture-proof Bag',
-    shelfLife: 730,
-    currentPrice: 2.85,
-    moq: 5000,
-    leadTimeFC: 12,
-    leadTimeNonFC: 24,
-    lastUpdateDate: '2026-07-30',
-    additionalNotes: 'Food-grade certified. Store below 30°C.',
-    category: 'Polymers',
-    currentStock: 12500,
-    monthlyConsumption: 6000,
-    safetyStock: 3000,
-    forecastDemand: 6500
-  },
-  {
-    id: 'MAT-50920',
-    materialCode: 'MAT-50920',
-    materialName: 'Ceramic Capacitor 10uF 50V X7R 0805',
-    vendorNumber: 'VND-809',
-    vendorName: 'Nippon Precision Electronics',
-    origin: 'Japan',
-    packingSize: '4,000 pcs / Tape Reel',
-    shelfLife: 1095,
-    currentPrice: 0.08,
-    moq: 20000,
-    leadTimeFC: 30,
-    leadTimeNonFC: 60,
-    lastUpdateDate: '2026-06-15',
-    additionalNotes: 'Global silicon shortage impacting non-FC lead times.',
-    category: 'Electronics',
-    currentStock: 18000,
-    monthlyConsumption: 15000,
-    safetyStock: 10000,
-    forecastDemand: 16000
-  },
-  {
-    id: 'MAT-10088',
-    materialCode: 'MAT-10088',
-    materialName: 'Stainless Steel Hex Bolt M8x30mm 316',
-    vendorNumber: 'VND-801',
-    vendorName: 'Apex Metals & Alloys Corp',
-    origin: 'Germany',
-    packingSize: '1,000 pcs / Box',
-    shelfLife: 3650,
-    currentPrice: 0.45,
-    moq: 2000,
-    leadTimeFC: 7,
-    leadTimeNonFC: 14,
-    lastUpdateDate: '2026-07-10',
-    additionalNotes: 'Standard inventory item. Always maintain safety buffer.',
-    category: 'Fasteners',
-    currentStock: 8500,
-    monthlyConsumption: 2500,
-    safetyStock: 1500,
-    forecastDemand: 2800
-  },
-  {
-    id: 'MAT-70211',
-    materialCode: 'MAT-70211',
-    materialName: 'Industrial Synthetic Lubricant Oil ISO VG 220',
-    vendorNumber: 'VND-812',
-    vendorName: 'Vanguard Chemical Solutions',
-    origin: 'USA',
-    packingSize: '208 Litres / Steel Drum',
-    shelfLife: 365,
-    currentPrice: 850.00,
-    moq: 5,
-    leadTimeFC: 14,
-    leadTimeNonFC: 28,
-    lastUpdateDate: '2026-05-18',
-    additionalNotes: 'Hazardous handling protocols apply during transport.',
-    category: 'Chemicals',
-    currentStock: 4,
-    monthlyConsumption: 6,
-    safetyStock: 3,
-    forecastDemand: 7
-  },
-  {
-    id: 'MAT-90145',
-    materialCode: 'MAT-90145',
-    materialName: 'Precision Optical Glass Lens 50mm f/1.4',
-    vendorNumber: 'VND-815',
-    vendorName: 'OptiTech Photonics Inc',
-    origin: 'Taiwan',
-    packingSize: '50 pcs / Foam Padded Case',
-    shelfLife: 1825,
-    currentPrice: 145.00,
-    moq: 50,
-    leadTimeFC: 25,
-    leadTimeNonFC: 45,
-    lastUpdateDate: '2026-07-02',
-    additionalNotes: 'Requires dust-free cleanroom storage.',
-    category: 'Optics',
-    currentStock: 120,
-    monthlyConsumption: 40,
-    safetyStock: 30,
-    forecastDemand: 45
-  },
-  {
-    id: 'MAT-20833',
-    materialCode: 'MAT-20833',
-    materialName: 'Corrugated Shipping Box 400x300x300mm Heavy Duty',
-    vendorNumber: 'VND-820',
-    vendorName: 'Mekong Packaging Ltd',
-    origin: 'Vietnam',
-    packingSize: '100 Flat pcs / Pallet',
-    shelfLife: 180,
-    currentPrice: 1.20,
-    moq: 1000,
-    leadTimeFC: 5,
-    leadTimeNonFC: 10,
-    lastUpdateDate: '2026-07-29',
-    additionalNotes: 'Keep dry. High humidity reduces structural rating.',
-    category: 'Packaging',
-    currentStock: 1500,
-    monthlyConsumption: 3000,
-    safetyStock: 1000,
-    forecastDemand: 3200
-  },
-  {
-    id: 'MAT-60199',
-    materialCode: 'MAT-60199',
-    materialName: 'Lithium Iron Phosphate Battery Cell 3.2V 100Ah',
-    vendorNumber: 'VND-825',
-    vendorName: 'SinoPower Energy Tech',
-    origin: 'China',
-    packingSize: '12 Cells / Insulated Box',
-    shelfLife: 90,
-    currentPrice: 68.00,
-    moq: 240,
-    leadTimeFC: 40,
-    leadTimeNonFC: 75,
-    lastUpdateDate: '2026-07-20',
-    additionalNotes: 'Strict UN38.3 lithium transport compliance required.',
-    category: 'Energy',
-    currentStock: 180,
-    monthlyConsumption: 200,
-    safetyStock: 100,
-    forecastDemand: 220
-  }
-];
-
-const getRiskStatus = (currentStock, monthlyConsumption, leadTimeFC, safetyStock) => {
-  const dailyConsumption = monthlyConsumption / 30;
-  if (dailyConsumption <= 0) return { label: 'Low Risk', color: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20', badge: 'Low' };
-  
-  const daysOfSupply = currentStock / dailyConsumption;
-  const reorderPointDays = leadTimeFC + (safetyStock / dailyConsumption);
-
-  if (daysOfSupply <= leadTimeFC) {
-    return { label: 'High Risk', color: 'bg-rose-500/10 text-rose-500 border-rose-500/20', badge: 'High' };
-  } else if (daysOfSupply <= reorderPointDays + 15) {
-    return { label: 'Medium Risk', color: 'bg-amber-500/10 text-amber-500 border-amber-500/20', badge: 'Medium' };
-  } else {
-    return { label: 'Low Risk', color: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20', badge: 'Low' };
-  }
-};
-
-export default function App() {
-  const [materials] = useState(INITIAL_MATERIALS);
-  const [activeTab, setActiveTab] = useState('directory'); // directory, calculator, excel, docs
-  const [theme, setTheme] = useState('dark');
-  const [userRole, setUserRole] = useState('Admin'); // Admin, Procurement User, Viewer
-  
-  // Search & Filter state for Directory
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedVendor, setSelectedVendor] = useState('All');
-  const [selectedOrigin, setSelectedOrigin] = useState('All');
-  const [sortBy, setSortBy] = useState('code'); // code, name, priceAsc, priceDesc, ltAsc, ltDesc
-  const [viewMode, setViewMode] = useState('table'); // table, grid
-
-  // Search state specifically for Lead Time Calculator Tab
-  const [calcSearchQuery, setCalcSearchQuery] = useState('');
-
-  // Detail Modal State
-  const [selectedMaterial, setSelectedMaterial] = useState(null);
-  const [isDetailOpen, setIsDetailOpen] = useState(false);
-
-  // Lead Time & Actual Order Date Calculation State
-  const [calcMaterial, setCalcMaterial] = useState(INITIAL_MATERIALS[0]);
-  
-  // Default dates for calculation
-  const todayStr = new Date().toISOString().split('T')[0];
-  const targetDeliveryStr = new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0];
-  const defaultPrDateStr = new Date(Date.now() + 5 * 86400000).toISOString().split('T')[0];
-
-  const [calcInputs, setCalcInputs] = useState({
-    requestedDeliveryDate: targetDeliveryStr,
-    actualPrReceivedDate: defaultPrDateStr,
-    orderType: 'FC', // 'FC' (or FFC) vs 'Non-FC'
-    leadTimeFC: INITIAL_MATERIALS[0].leadTimeFC,
-    leadTimeNonFC: INITIAL_MATERIALS[0].leadTimeNonFC
-  });
-
-  useEffect(() => {
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            slate: {
+              950: '#020617',
+            }
+          }
+        }
+      }
     }
-  }, [theme]);
+  </script>
 
-  const vendorsList = useMemo(() => {
-    const list = Array.from(new Set(materials.map(m => m.vendorName)));
-    return ['All', ...list];
-  }, [materials]);
+  <!-- React & React-DOM CDN -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 
-  const originList = useMemo(() => {
-    const list = Array.from(new Set(materials.map(m => m.origin)));
-    return ['All', ...list];
-  }, [materials]);
+  <!-- Babel CDN để biên dịch JSX trên trình duyệt -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-  // Master Directory filtered materials
-  const filteredMaterials = useMemo(() => {
-    return materials.filter(m => {
-      const matchesSearch =
-        m.materialCode.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        m.materialName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        m.vendorName.toLowerCase().includes(searchQuery.toLowerCase());
-      
-      const matchesVendor = selectedVendor === 'All' || m.vendorName === selectedVendor;
-      const matchesOrigin = selectedOrigin === 'All' || m.origin === selectedOrigin;
+  <!-- Lucide Icons Development / UMD -->
+  <script src="https://unpkg.com/lucide@latest"></script>
 
-      return matchesSearch && matchesVendor && matchesOrigin;
-    }).sort((a, b) => {
-      if (sortBy === 'priceAsc') return a.currentPrice - b.currentPrice;
-      if (sortBy === 'priceDesc') return b.currentPrice - a.currentPrice;
-      if (sortBy === 'ltAsc') return a.leadTimeFC - b.leadTimeFC;
-      if (sortBy === 'ltDesc') return b.leadTimeFC - a.leadTimeFC;
-      if (sortBy === 'name') return a.materialName.localeCompare(b.materialName);
-      return a.materialCode.localeCompare(b.materialCode);
-    });
-  }, [materials, searchQuery, selectedVendor, selectedOrigin, sortBy]);
+  <style>
+    /* Custom Scrollbar styling */
+    .scrollbar-none::-webkit-scrollbar {
+      display: none;
+    }
+    .scrollbar-none {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased">
 
-  // Calculator Tab filtered materials for dropdown selection
-  const calcFilteredMaterials = useMemo(() => {
-    if (!calcSearchQuery.trim()) return materials;
-    const q = calcSearchQuery.toLowerCase();
-    return materials.filter(m =>
-      m.materialCode.toLowerCase().includes(q) ||
-      m.materialName.toLowerCase().includes(q) ||
-      m.vendorName.toLowerCase().includes(q)
-    );
-  }, [materials, calcSearchQuery]);
+  <!-- Root element cho React Mount -->
+  <div id="root"></div>
 
-  const handleExportCSV = () => {
-    const headers = [
-      'Material Code,Material Name,Vendor Number,Vendor Name,Origin,Packing Size,Shelf Life (Days),Current Price ($),MOQ,Lead Time FC (Days),Lead Time Non-FC (Days),Last Update Date,Additional Notes'
+  <!-- React Code Component -->
+  <script type="text/babel">
+    const { useState, useMemo, useEffect } = React;
+
+    // Utility Component để render Lucide Icons trong môi trường CDN UMD
+    const Icon = ({ name, className = "w-4 h-4" }) => {
+      const containerRef = React.useRef(null);
+      useEffect(() => {
+        if (containerRef.current && window.lucide) {
+          containerRef.current.innerHTML = `<i data-lucide="${name}" class="${className}"></i>`;
+          window.lucide.createIcons({
+            attrs: { class: className },
+            nameAttr: 'data-lucide',
+            el: containerRef.current
+          });
+        }
+      }, [name, className]);
+      return <span ref={containerRef} className="inline-flex items-center justify-center"></span>;
+    };
+
+    const INITIAL_MATERIALS = [
+      {
+        id: 'MAT-10029',
+        materialCode: 'MAT-10029',
+        materialName: 'Titanium Alloy Rod Grade 5 (6Al-4V)',
+        vendorNumber: 'VND-801',
+        vendorName: 'Apex Metals & Alloys Corp',
+        origin: 'Germany',
+        packingSize: '20 Bars / Wooden Bundle',
+        shelfLife: 1825,
+        currentPrice: 420.50,
+        moq: 100,
+        leadTimeFC: 18,
+        leadTimeNonFC: 35,
+        lastUpdateDate: '2026-07-28',
+        additionalNotes: 'Critical aerospace component. Subject to tariff adjustments.',
+        category: 'Raw Metals',
+        currentStock: 450,
+        monthlyConsumption: 120,
+        safetyStock: 80,
+        forecastDemand: 130
+      },
+      {
+        id: 'MAT-30411',
+        materialCode: 'MAT-30411',
+        materialName: 'High-Grade Polypropylene Resin Pellets',
+        vendorNumber: 'VND-804',
+        vendorName: 'PolymerTech Global Ltd',
+        origin: 'South Korea',
+        packingSize: '25 kg Moisture-proof Bag',
+        shelfLife: 730,
+        currentPrice: 2.85,
+        moq: 5000,
+        leadTimeFC: 12,
+        leadTimeNonFC: 24,
+        lastUpdateDate: '2026-07-30',
+        additionalNotes: 'Food-grade certified. Store below 30°C.',
+        category: 'Polymers',
+        currentStock: 12500,
+        monthlyConsumption: 6000,
+        safetyStock: 3000,
+        forecastDemand: 6500
+      },
+      {
+        id: 'MAT-50920',
+        materialCode: 'MAT-50920',
+        materialName: 'Ceramic Capacitor 10uF 50V X7R 0805',
+        vendorNumber: 'VND-809',
+        vendorName: 'Nippon Precision Electronics',
+        origin: 'Japan',
+        packingSize: '4,000 pcs / Tape Reel',
+        shelfLife: 1095,
+        currentPrice: 0.08,
+        moq: 20000,
+        leadTimeFC: 30,
+        leadTimeNonFC: 60,
+        lastUpdateDate: '2026-06-15',
+        additionalNotes: 'Global silicon shortage impacting non-FC lead times.',
+        category: 'Electronics',
+        currentStock: 18000,
+        monthlyConsumption: 15000,
+        safetyStock: 10000,
+        forecastDemand: 16000
+      },
+      {
+        id: 'MAT-10088',
+        materialCode: 'MAT-10088',
+        materialName: 'Stainless Steel Hex Bolt M8x30mm 316',
+        vendorNumber: 'VND-801',
+        vendorName: 'Apex Metals & Alloys Corp',
+        origin: 'Germany',
+        packingSize: '1,000 pcs / Box',
+        shelfLife: 3650,
+        currentPrice: 0.45,
+        moq: 2000,
+        leadTimeFC: 7,
+        leadTimeNonFC: 14,
+        lastUpdateDate: '2026-07-10',
+        additionalNotes: 'Standard inventory item. Always maintain safety buffer.',
+        category: 'Fasteners',
+        currentStock: 8500,
+        monthlyConsumption: 2500,
+        safetyStock: 1500,
+        forecastDemand: 2800
+      },
+      {
+        id: 'MAT-70211',
+        materialCode: 'MAT-70211',
+        materialName: 'Industrial Synthetic Lubricant Oil ISO VG 220',
+        vendorNumber: 'VND-812',
+        vendorName: 'Vanguard Chemical Solutions',
+        origin: 'USA',
+        packingSize: '208 Litres / Steel Drum',
+        shelfLife: 365,
+        currentPrice: 850.00,
+        moq: 5,
+        leadTimeFC: 14,
+        leadTimeNonFC: 28,
+        lastUpdateDate: '2026-05-18',
+        additionalNotes: 'Hazardous handling protocols apply during transport.',
+        category: 'Chemicals',
+        currentStock: 4,
+        monthlyConsumption: 6,
+        safetyStock: 3,
+        forecastDemand: 7
+      },
+      {
+        id: 'MAT-90145',
+        materialCode: 'MAT-90145',
+        materialName: 'Precision Optical Glass Lens 50mm f/1.4',
+        vendorNumber: 'VND-815',
+        vendorName: 'OptiTech Photonics Inc',
+        origin: 'Taiwan',
+        packingSize: '50 pcs / Foam Padded Case',
+        shelfLife: 1825,
+        currentPrice: 145.00,
+        moq: 50,
+        leadTimeFC: 25,
+        leadTimeNonFC: 45,
+        lastUpdateDate: '2026-07-02',
+        additionalNotes: 'Requires dust-free cleanroom storage.',
+        category: 'Optics',
+        currentStock: 120,
+        monthlyConsumption: 40,
+        safetyStock: 30,
+        forecastDemand: 45
+      },
+      {
+        id: 'MAT-20833',
+        materialCode: 'MAT-20833',
+        materialName: 'Corrugated Shipping Box 400x300x300mm Heavy Duty',
+        vendorNumber: 'VND-820',
+        vendorName: 'Mekong Packaging Ltd',
+        origin: 'Vietnam',
+        packingSize: '100 Flat pcs / Pallet',
+        shelfLife: 180,
+        currentPrice: 1.20,
+        moq: 1000,
+        leadTimeFC: 5,
+        leadTimeNonFC: 10,
+        lastUpdateDate: '2026-07-29',
+        additionalNotes: 'Keep dry. High humidity reduces structural rating.',
+        category: 'Packaging',
+        currentStock: 1500,
+        monthlyConsumption: 3000,
+        safetyStock: 1000,
+        forecastDemand: 3200
+      },
+      {
+        id: 'MAT-60199',
+        materialCode: 'MAT-60199',
+        materialName: 'Lithium Iron Phosphate Battery Cell 3.2V 100Ah',
+        vendorNumber: 'VND-825',
+        vendorName: 'SinoPower Energy Tech',
+        origin: 'China',
+        packingSize: '12 Cells / Insulated Box',
+        shelfLife: 90,
+        currentPrice: 68.00,
+        moq: 240,
+        leadTimeFC: 40,
+        leadTimeNonFC: 75,
+        lastUpdateDate: '2026-07-20',
+        additionalNotes: 'Strict UN38.3 lithium transport compliance required.',
+        category: 'Energy',
+        currentStock: 180,
+        monthlyConsumption: 200,
+        safetyStock: 100,
+        forecastDemand: 220
+      }
     ];
-    const rows = filteredMaterials.map(m => [
-      `"${m.materialCode}"`,
-      `"${m.materialName.replace(/"/g, '""')}"`,
-      `"${m.vendorNumber}"`,
-      `"${m.vendorName}"`,
-      `"${m.origin}"`,
-      `"${m.packingSize}"`,
-      m.shelfLife,
-      m.currentPrice,
-      m.moq,
-      m.leadTimeFC,
-      m.leadTimeNonFC,
-      `"${m.lastUpdateDate}"`,
-      `"${(m.additionalNotes || '').replace(/"/g, '""')}"`
-    ].join(','));
 
-    const csvContent = 'data:text/csv;charset=utf-8,' + [headers, ...rows].join('\n');
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `Material_Master_Data_${new Date().toISOString().split('T')[0]}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
+    const getRiskStatus = (currentStock, monthlyConsumption, leadTimeFC, safetyStock) => {
+      const dailyConsumption = monthlyConsumption / 30;
+      if (dailyConsumption <= 0) return { label: 'Low Risk', color: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20', badge: 'Low' };
+      
+      const daysOfSupply = currentStock / dailyConsumption;
+      const reorderPointDays = leadTimeFC + (safetyStock / dailyConsumption);
 
-  const openCalculatorForMaterial = (mat) => {
-    setCalcMaterial(mat);
-    setCalcInputs(prev => ({
-      ...prev,
-      leadTimeFC: mat.leadTimeFC,
-      leadTimeNonFC: mat.leadTimeNonFC
-    }));
-    setActiveTab('calculator');
-  };
-
-  const calculatedLeadTimes = useMemo(() => {
-    const getOrderDate = (deliveryDateStr, days) => {
-      if (!deliveryDateStr) return 'N/A';
-      const d = new Date(deliveryDateStr);
-      d.setDate(d.getDate() - Number(days || 0));
-      return d.toISOString().split('T')[0];
+      if (daysOfSupply <= leadTimeFC) {
+        return { label: 'High Risk', color: 'bg-rose-500/10 text-rose-500 border-rose-500/20', badge: 'High' };
+      } else if (daysOfSupply <= reorderPointDays + 15) {
+        return { label: 'Medium Risk', color: 'bg-amber-500/10 text-amber-500 border-amber-500/20', badge: 'Medium' };
+      } else {
+        return { label: 'Low Risk', color: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20', badge: 'Low' };
+      }
     };
 
-    const suggestedFC = getOrderDate(calcInputs.requestedDeliveryDate, calcInputs.leadTimeFC);
-    const suggestedNonFC = getOrderDate(calcInputs.requestedDeliveryDate, calcInputs.leadTimeNonFC);
-
-    // Calculate Actual Leadtime
-    let actualLeadtime = 0;
-    let daysDiff = 0;
-    let isShortLeadtime = false;
-    let targetStandardLeadtime = calcInputs.orderType === 'FC' ? calcInputs.leadTimeFC : calcInputs.leadTimeNonFC;
-
-    if (calcInputs.requestedDeliveryDate && calcInputs.actualPrReceivedDate) {
-      const deliveryDate = new Date(calcInputs.requestedDeliveryDate);
-      const prDate = new Date(calcInputs.actualPrReceivedDate);
-      const diffTime = deliveryDate.getTime() - prDate.getTime();
-      actualLeadtime = Math.round(diffTime / (1000 * 3600 * 24));
+    function App() {
+      const [materials] = useState(INITIAL_MATERIALS);
+      const [activeTab, setActiveTab] = useState('directory'); 
+      const [theme, setTheme] = useState('dark');
+      const [userRole, setUserRole] = useState('Admin');
       
-      isShortLeadtime = actualLeadtime < targetStandardLeadtime;
-      daysDiff = actualLeadtime - targetStandardLeadtime;
-    }
+      // Search & Filter state for Directory
+      const [searchQuery, setSearchQuery] = useState('');
+      const [selectedVendor, setSelectedVendor] = useState('All');
+      const [selectedOrigin, setSelectedOrigin] = useState('All');
+      const [sortBy, setSortBy] = useState('code');
+      const [viewMode, setViewMode] = useState('table');
 
-    return {
-      suggestedFC,
-      suggestedNonFC,
-      actualLeadtime,
-      targetStandardLeadtime,
-      isShortLeadtime,
-      daysDiff
-    };
-  }, [calcInputs]);
+      // Search state for Lead Time Calculator Tab
+      const [calcSearchQuery, setCalcSearchQuery] = useState('');
 
-  return (
-    <div className={`min-h-screen transition-colors duration-200 ${theme === 'dark' ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'}`}>
+      // Detail Modal State
+      const [selectedMaterial, setSelectedMaterial] = useState(null);
+      const [isDetailOpen, setIsDetailOpen] = useState(false);
+
+      // Lead Time & Actual Order Date Calculation State
+      const [calcMaterial, setCalcMaterial] = useState(INITIAL_MATERIALS[0]);
       
-      {/* Header Navigation */}
-      <header className="sticky top-0 z-40 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md px-4 lg:px-8 py-3">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 max-w-7xl mx-auto">
+      const targetDeliveryStr = new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0];
+      const defaultPrDateStr = new Date(Date.now() + 5 * 86400000).toISOString().split('T')[0];
+
+      const [calcInputs, setCalcInputs] = useState({
+        requestedDeliveryDate: targetDeliveryStr,
+        actualPrReceivedDate: defaultPrDateStr,
+        orderType: 'FC',
+        leadTimeFC: INITIAL_MATERIALS[0].leadTimeFC,
+        leadTimeNonFC: INITIAL_MATERIALS[0].leadTimeNonFC
+      });
+
+      useEffect(() => {
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      }, [theme]);
+
+      const vendorsList = useMemo(() => {
+        const list = Array.from(new Set(materials.map(m => m.vendorName)));
+        return ['All', ...list];
+      }, [materials]);
+
+      const originList = useMemo(() => {
+        const list = Array.from(new Set(materials.map(m => m.origin)));
+        return ['All', ...list];
+      }, [materials]);
+
+      const filteredMaterials = useMemo(() => {
+        return materials.filter(m => {
+          const matchesSearch =
+            m.materialCode.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            m.materialName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            m.vendorName.toLowerCase().includes(searchQuery.toLowerCase());
           
-          <div className="flex items-center space-x-3 w-full md:w-auto justify-between md:justify-start">
-            <div className="flex items-center space-x-3">
-              <div className="p-2.5 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-xl text-white shadow-lg shadow-blue-500/20">
-                <Box className="w-6 h-6" />
-              </div>
-              <div>
-                <h1 className="text-lg font-bold tracking-tight bg-gradient-to-r from-blue-600 to-indigo-500 bg-clip-text text-transparent">
-                  SPD FOOD
-                </h1>
-                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                  Raw Material Master Data
-                </p>
-              </div>
-            </div>
+          const matchesVendor = selectedVendor === 'All' || m.vendorName === selectedVendor;
+          const matchesOrigin = selectedOrigin === 'All' || m.origin === selectedOrigin;
 
-            <div className="flex md:hidden items-center space-x-2">
-              <button
-                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
-              >
-                {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-              </button>
-            </div>
-          </div>
+          return matchesSearch && matchesVendor && matchesOrigin;
+        }).sort((a, b) => {
+          if (sortBy === 'priceAsc') return a.currentPrice - b.currentPrice;
+          if (sortBy === 'priceDesc') return b.currentPrice - a.currentPrice;
+          if (sortBy === 'ltAsc') return a.leadTimeFC - b.leadTimeFC;
+          if (sortBy === 'ltDesc') return b.leadTimeFC - a.leadTimeFC;
+          if (sortBy === 'name') return a.materialName.localeCompare(b.materialName);
+          return a.materialCode.localeCompare(b.materialCode);
+        });
+      }, [materials, searchQuery, selectedVendor, selectedOrigin, sortBy]);
 
-          {/* Navigation Links */}
-          <nav className="flex items-center space-x-1 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 scrollbar-none">
-            {[
-              { id: 'directory', label: 'Master Directory', icon: Layers },
-              { id: 'calculator', label: 'Lead Time Calculation', icon: Calculator },
-              { id: 'excel', label: 'Source', icon: FileSpreadsheet },
-              { id: 'docs', label: 'System Specs & APIs', icon: Terminal }
-            ].map((tab) => {
-              const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center space-x-2 px-3.5 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
-                    isActive
-                      ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
-                      : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
-                  }`}
-                >
-                  <Icon className="w-4 h-4" />
-                  <span>{tab.label}</span>
-                </button>
-              );
-            })}
-          </nav>
+      const calcFilteredMaterials = useMemo(() => {
+        if (!calcSearchQuery.trim()) return materials;
+        const q = calcSearchQuery.toLowerCase();
+        return materials.filter(m =>
+          m.materialCode.toLowerCase().includes(q) ||
+          m.materialName.toLowerCase().includes(q) ||
+          m.vendorName.toLowerCase().includes(q)
+        );
+      }, [materials, calcSearchQuery]);
 
-          {/* Controls */}
-          <div className="hidden md:flex items-center space-x-3">
-            <div className="flex items-center space-x-2 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700">
-              <ShieldCheck className="w-4 h-4 text-blue-500" />
-              <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Role:</span>
-              <select
-                value={userRole}
-                onChange={(e) => setUserRole(e.target.value)}
-                className="bg-transparent text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none cursor-pointer"
-              >
-                <option value="Admin">Admin (Full)</option>
-                <option value="Procurement User">Procurement</option>
-                <option value="Viewer">Viewer (Read Only)</option>
-              </select>
-            </div>
+      const handleExportCSV = () => {
+        const headers = [
+          'Material Code,Material Name,Vendor Number,Vendor Name,Origin,Packing Size,Shelf Life (Days),Current Price ($),MOQ,Lead Time FC (Days),Lead Time Non-FC (Days),Last Update Date,Additional Notes'
+        ];
+        const rows = filteredMaterials.map(m => [
+          `"${m.materialCode}"`,
+          `"${m.materialName.replace(/"/g, '""')}"`,
+          `"${m.vendorNumber}"`,
+          `"${m.vendorName}"`,
+          `"${m.origin}"`,
+          `"${m.packingSize}"`,
+          m.shelfLife,
+          m.currentPrice,
+          m.moq,
+          m.leadTimeFC,
+          m.leadTimeNonFC,
+          `"${m.lastUpdateDate}"`,
+          `"${(m.additionalNotes || '').replace(/"/g, '""')}"`
+        ].join(','));
 
-            <button
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-              title="Toggle Theme"
-            >
-              {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
-            </button>
-          </div>
+        const csvContent = 'data:text/csv;charset=utf-8,' + [headers, ...rows].join('\n');
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement('a');
+        link.setAttribute('href', encodedUri);
+        link.setAttribute('download', `Material_Master_Data_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      };
 
-        </div>
-      </header>
+      const openCalculatorForMaterial = (mat) => {
+        setCalcMaterial(mat);
+        setCalcInputs(prev => ({
+          ...prev,
+          leadTimeFC: mat.leadTimeFC,
+          leadTimeNonFC: mat.leadTimeNonFC
+        }));
+        setActiveTab('calculator');
+      };
 
-      {/* Main Container */}
-      <main className="max-w-7xl mx-auto px-4 lg:px-8 py-6">
+      const calculatedLeadTimes = useMemo(() => {
+        const getOrderDate = (deliveryDateStr, days) => {
+          if (!deliveryDateStr) return 'N/A';
+          const d = new Date(deliveryDateStr);
+          d.setDate(d.getDate() - Number(days || 0));
+          return d.toISOString().split('T')[0];
+        };
 
-        {/* ------------------------------------------------------------- */}
-        {/* TAB 1: MASTER DIRECTORY */}
-        {/* ------------------------------------------------------------- */}
-        {activeTab === 'directory' && (
-          <div className="space-y-6 animate-fadeIn">
-            
-            {/* Header & Controls Bar */}
-            <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+        const suggestedFC = getOrderDate(calcInputs.requestedDeliveryDate, calcInputs.leadTimeFC);
+        const suggestedNonFC = getOrderDate(calcInputs.requestedDeliveryDate, calcInputs.leadTimeNonFC);
+
+        let actualLeadtime = 0;
+        let daysDiff = 0;
+        let isShortLeadtime = false;
+        let targetStandardLeadtime = calcInputs.orderType === 'FC' ? calcInputs.leadTimeFC : calcInputs.leadTimeNonFC;
+
+        if (calcInputs.requestedDeliveryDate && calcInputs.actualPrReceivedDate) {
+          const deliveryDate = new Date(calcInputs.requestedDeliveryDate);
+          const prDate = new Date(calcInputs.actualPrReceivedDate);
+          const diffTime = deliveryDate.getTime() - prDate.getTime();
+          actualLeadtime = Math.round(diffTime / (1000 * 3600 * 24));
+          
+          isShortLeadtime = actualLeadtime < targetStandardLeadtime;
+          daysDiff = actualLeadtime - targetStandardLeadtime;
+        }
+
+        return {
+          suggestedFC,
+          suggestedNonFC,
+          actualLeadtime,
+          targetStandardLeadtime,
+          isShortLeadtime,
+          daysDiff
+        };
+      }, [calcInputs]);
+
+      return (
+        <div className={`min-h-screen transition-colors duration-200 ${theme === 'dark' ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'}`}>
+          
+          {/* Header Navigation */}
+          <header className="sticky top-0 z-40 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md px-4 lg:px-8 py-3">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4 max-w-7xl mx-auto">
               
-              <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
-                
-                {/* Search Input Bar */}
-                <div className="relative w-full lg:w-96">
-                  <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                  <input
-                    type="text"
-                    placeholder="Search Code, Material Name, Vendor..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-slate-100"
-                  />
-                  {searchQuery && (
-                    <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  )}
-                </div>
-
-                {/* Export & Action Buttons */}
-                <div className="flex items-center space-x-2 w-full lg:w-auto justify-end">
-                  <button
-                    onClick={handleExportCSV}
-                    className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-xl flex items-center space-x-1.5 shadow-md shadow-emerald-500/10 transition-all"
-                  >
-                    <Download className="w-3.5 h-3.5" />
-                    <span>Export CSV / Excel</span>
-                  </button>
-
-                  {userRole === 'Admin' && (
-                    <button
-                      onClick={() => setActiveTab('excel')}
-                      className="px-3.5 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl flex items-center space-x-1.5 shadow-md shadow-blue-500/10 transition-all"
-                    >
-                      <Plus className="w-3.5 h-3.5" />
-                      <span>Import Excel</span>
-                    </button>
-                  )}
-
-                  {/* View Mode Toggle */}
-                  <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
-                    <button
-                      onClick={() => setViewMode('table')}
-                      className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${viewMode === 'table' ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-slate-500'}`}
-                    >
-                      Table
-                    </button>
-                    <button
-                      onClick={() => setViewMode('grid')}
-                      className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${viewMode === 'grid' ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-slate-500'}`}
-                    >
-                      Grid
-                    </button>
+              <div className="flex items-center space-x-3 w-full md:w-auto justify-between md:justify-start">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2.5 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-xl text-white shadow-lg shadow-blue-500/20">
+                    <Icon name="box" className="w-6 h-6" />
                   </div>
-                </div>
-
-              </div>
-
-              {/* Filters & Sorting */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 pt-2 border-t border-slate-100 dark:border-slate-800">
-                
-                {/* Vendor Filter */}
-                <div>
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Filter Vendor</label>
-                  <select
-                    value={selectedVendor}
-                    onChange={(e) => setSelectedVendor(e.target.value)}
-                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs p-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  >
-                    {vendorsList.map(v => <option key={v} value={v}>{v}</option>)}
-                  </select>
-                </div>
-
-                {/* Country Filter */}
-                <div>
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Filter Origin</label>
-                  <select
-                    value={selectedOrigin}
-                    onChange={(e) => setSelectedOrigin(e.target.value)}
-                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs p-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  >
-                    {originList.map(o => <option key={o} value={o}>{o}</option>)}
-                  </select>
-                </div>
-
-                {/* Sort Option */}
-                <div>
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Sort By</label>
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
-                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs p-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  >
-                    <option value="code">Item No. (A-Z)</option>
-                    <option value="name">Item Name (A-Z)</option>
-                    <option value="priceAsc">Price: Low to High</option>
-                    <option value="priceDesc">Price: High to Low</option>
-                    <option value="ltAsc">Lead Time FC: Shortest First</option>
-                    <option value="ltDesc">Lead Time FC: Longest First</option>
-                  </select>
-                </div>
-
-                {/* Reset Filters */}
-                <div className="flex items-end">
-                  <button
-                    onClick={() => { setSearchQuery(''); setSelectedVendor('All'); setSelectedOrigin('All'); setSortBy('code'); }}
-                    className="w-full py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-semibold rounded-lg border border-slate-200 dark:border-slate-700 flex items-center justify-center space-x-1"
-                  >
-                    <RefreshCw className="w-3.5 h-3.5" />
-                    <span>Reset Filters</span>
-                  </button>
-                </div>
-
-              </div>
-
-            </div>
-
-            {/* Table / Grid Content */}
-            {viewMode === 'table' ? (
-              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs border-collapse">
-                    <thead>
-                      <tr className="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 font-bold border-b border-slate-200 dark:border-slate-800 uppercase tracking-wider">
-                        <th className="p-3.5">Material Code</th>
-                        <th className="p-3.5">Material Name</th>
-                        <th className="p-3.5">Vendor & Origin</th>
-                        <th className="p-3.5">Unit Price</th>
-                        <th className="p-3.5">MOQ</th>
-                        <th className="p-3.5">Lead Time (FC / Spot)</th>
-                        <th className="p-3.5">Risk Status</th>
-                        <th className="p-3.5 text-right">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
-                      {filteredMaterials.map((m) => {
-                        const risk = getRiskStatus(m.currentStock, m.monthlyConsumption, m.leadTimeFC, m.safetyStock);
-                        return (
-                          <tr key={m.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
-                            <td className="p-3.5 font-mono font-bold text-blue-600 dark:text-blue-400">
-                              {m.materialCode}
-                            </td>
-                            <td className="p-3.5 max-w-xs">
-                              <div className="font-semibold text-slate-900 dark:text-slate-100 truncate">{m.materialName}</div>
-                              <div className="text-[10px] text-slate-400">{m.packingSize} • Category: {m.category}</div>
-                            </td>
-                            <td className="p-3.5">
-                              <div className="font-medium text-slate-800 dark:text-slate-200">{m.vendorName}</div>
-                              <div className="text-[10px] text-slate-400 flex items-center space-x-1 mt-0.5">
-                                <Globe className="w-3 h-3 text-slate-400" />
-                                <span>{m.origin} ({m.vendorNumber})</span>
-                              </div>
-                            </td>
-                            <td className="p-3.5 font-semibold text-slate-900 dark:text-slate-100">
-                              ${m.currentPrice.toFixed(2)}
-                            </td>
-                            <td className="p-3.5">
-                              {m.moq.toLocaleString()} pcs
-                            </td>
-                            <td className="p-3.5">
-                              <div className="flex items-center space-x-1">
-                                <span className="px-1.5 py-0.5 bg-blue-500/10 text-blue-500 rounded font-semibold">{m.leadTimeFC}d FC</span>
-                                <span className="text-slate-400">/</span>
-                                <span className="px-1.5 py-0.5 bg-amber-500/10 text-amber-500 rounded font-semibold">{m.leadTimeNonFC}d Spot</span>
-                              </div>
-                            </td>
-                            <td className="p-3.5">
-                              <span className={`px-2 py-0.5 rounded-full border text-[10px] font-bold ${risk.color}`}>
-                                {risk.badge} Risk
-                              </span>
-                            </td>
-                            <td className="p-3.5 text-right space-x-1">
-                              <button
-                                onClick={() => { setSelectedMaterial(m); setIsDetailOpen(true); }}
-                                className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-600 dark:text-slate-300 transition-colors"
-                                title="View Details"
-                              >
-                                <Eye className="w-3.5 h-3.5" />
-                              </button>
-                              <button
-                                onClick={() => openCalculatorForMaterial(m)}
-                                className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-emerald-600 hover:text-white text-slate-600 dark:text-slate-300 transition-colors"
-                                title="Open Lead Time Calculator"
-                              >
-                                <Calculator className="w-3.5 h-3.5" />
-                              </button>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                      {filteredMaterials.length === 0 && (
-                        <tr>
-                          <td colSpan="8" className="text-center py-12 text-slate-400">
-                            No materials found matching search criteria.
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredMaterials.map((m) => {
-                  const risk = getRiskStatus(m.currentStock, m.monthlyConsumption, m.leadTimeFC, m.safetyStock);
-                  return (
-                    <div key={m.id} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
-                      <div>
-                        <div className="flex items-center justify-between">
-                          <span className="font-mono text-xs font-bold text-blue-500 bg-blue-500/10 px-2.5 py-1 rounded-lg">
-                            {m.materialCode}
-                          </span>
-                          <span className={`px-2 py-0.5 rounded-full border text-[10px] font-bold ${risk.color}`}>
-                            {risk.badge} Risk
-                          </span>
-                        </div>
-
-                        <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100 mt-3 line-clamp-2">
-                          {m.materialName}
-                        </h3>
-                        <p className="text-xs text-slate-400 mt-1">{m.vendorName} • {m.origin}</p>
-
-                        <div className="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 text-xs">
-                          <div>
-                            <span className="text-[10px] text-slate-400 block uppercase">Price / MOQ</span>
-                            <span className="font-semibold text-slate-800 dark:text-slate-200">${m.currentPrice.toFixed(2)} ({m.moq} MOQ)</span>
-                          </div>
-                          <div>
-                            <span className="text-[10px] text-slate-400 block uppercase">Lead Time (FC/Spot)</span>
-                            <span className="font-semibold text-blue-500">{m.leadTimeFC}d</span> / <span className="font-semibold text-amber-500">{m.leadTimeNonFC}d</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center justify-between mt-5 pt-3 border-t border-slate-100 dark:border-slate-800">
-                        <button
-                          onClick={() => { setSelectedMaterial(m); setIsDetailOpen(true); }}
-                          className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded-lg flex items-center space-x-1"
-                        >
-                          <Eye className="w-3 h-3" />
-                          <span>Details</span>
-                        </button>
-                        <button
-                          onClick={() => openCalculatorForMaterial(m)}
-                          className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-lg flex items-center space-x-1 shadow-sm"
-                        >
-                          <Calculator className="w-3 h-3" />
-                          <span>Calculate</span>
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
-          </div>
-        )}
-
-        {/* ------------------------------------------------------------- */}
-        {/* TAB 2: LEAD TIME CALCULATION & ACTUAL ORDER DATE */}
-        {/* ------------------------------------------------------------- */}
-        {activeTab === 'calculator' && (
-          <div className="space-y-6 animate-fadeIn max-w-4xl mx-auto">
-            
-            {/* Header & Quick Search Bar */}
-            <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
-              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                <div>
-                  <div className="flex items-center space-x-2">
-                    <Calculator className="w-6 h-6 text-blue-500" />
-                    <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
-                      Lead Time Calculation
-                    </h2>
-                  </div>
-                  <p className="text-xs text-slate-400 mt-1">
-                    Select a material code, calculate suggested order dates, and track actual PR lead time compliance.
-                  </p>
-                </div>
-
-                {/* Quick Search Input (Search Code, Material Name, Vendor...) */}
-                <div className="w-full md:w-80 relative">
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">
-                    Search Code, Material Name, Vendor...
-                  </label>
-                  <div className="relative">
-                    <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                    <input
-                      type="text"
-                      placeholder="Search Code, Material Name, Vendor..."
-                      value={calcSearchQuery}
-                      onChange={(e) => setCalcSearchQuery(e.target.value)}
-                      className="w-full pl-9 pr-8 py-2 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-slate-100"
-                    />
-                    {calcSearchQuery && (
-                      <button
-                        onClick={() => setCalcSearchQuery('')}
-                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Material Selector dropdown populated by quick search */}
-              <div>
-                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">
-                  Select Material ({calcFilteredMaterials.length} found)
-                </label>
-                <select
-                  value={calcMaterial?.id || ''}
-                  onChange={(e) => {
-                    const mat = materials.find(m => m.id === e.target.value);
-                    if (mat) openCalculatorForMaterial(mat);
-                  }}
-                  className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs rounded-xl p-2.5 font-medium text-slate-800 dark:text-slate-200 w-full"
-                >
-                  {calcFilteredMaterials.map(m => (
-                    <option key={m.id} value={m.id}>
-                      {m.materialCode} - {m.materialName} ({m.vendorName})
-                    </option>
-                  ))}
-                  {calcFilteredMaterials.length === 0 && (
-                    <option value="" disabled>No material matching "{calcSearchQuery}"</option>
-                  )}
-                </select>
-              </div>
-            </div>
-
-            {/* Selected Material Card & Lead Time Calculation */}
-            <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
-              
-              {calcMaterial && (
-                <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                   <div>
-                    <span className="px-2 py-0.5 bg-blue-500/10 text-blue-500 font-mono text-xs font-bold rounded">
-                      {calcMaterial.materialCode}
-                    </span>
-                    <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100 mt-1">
-                      {calcMaterial.materialName}
-                    </h3>
-                    <p className="text-xs text-slate-400 mt-0.5">
-                      Vendor: <span className="font-medium text-slate-700 dark:text-slate-300">{calcMaterial.vendorName}</span> ({calcMaterial.origin})
+                    <h1 className="text-lg font-bold tracking-tight bg-gradient-to-r from-blue-600 to-indigo-500 bg-clip-text text-transparent">
+                      SPD FOOD
+                    </h1>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                      Raw Material Master Data
                     </p>
                   </div>
-                  <div className="flex items-center space-x-3 text-xs">
-                    <div className="px-3 py-1.5 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/50 rounded-lg text-center">
-                      <span className="text-[10px] text-slate-400 block font-semibold uppercase">Lead Time FC/FFC</span>
-                      <span className="font-bold text-blue-600 dark:text-blue-400">{calcInputs.leadTimeFC} Days</span>
-                    </div>
-                    <div className="px-3 py-1.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/50 rounded-lg text-center">
-                      <span className="text-[10px] text-slate-400 block font-semibold uppercase">Lead Time Non-FC</span>
-                      <span className="font-bold text-amber-600 dark:text-amber-400">{calcInputs.leadTimeNonFC} Days</span>
-                    </div>
-                  </div>
                 </div>
-              )}
 
-              {/* 1. Lead Time Calculation Section */}
+                <div className="flex md:hidden items-center space-x-2">
+                  <button
+                    onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                    className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
+                  >
+                    {theme === 'dark' ? <Icon name="sun" className="w-4 h-4" /> : <Icon name="moon" className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Navigation Links */}
+              <nav className="flex items-center space-x-1 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 scrollbar-none">
+                {[
+                  { id: 'directory', label: 'Master Directory', icon: 'layers' },
+                  { id: 'calculator', label: 'Lead Time Calculation', icon: 'calculator' },
+                  { id: 'excel', label: 'Source', icon: 'file-spreadsheet' },
+                  { id: 'docs', label: 'System Specs & APIs', icon: 'terminal' }
+                ].map((tab) => {
+                  const isActive = activeTab === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`flex items-center space-x-2 px-3.5 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+                        isActive
+                          ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
+                          : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                      }`}
+                    >
+                      <Icon name={tab.icon} className="w-4 h-4" />
+                      <span>{tab.label}</span>
+                    </button>
+                  );
+                })}
+              </nav>
+
+              {/* Controls */}
+              <div className="hidden md:flex items-center space-x-3">
+                <div className="flex items-center space-x-2 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700">
+                  <Icon name="shield-check" className="w-4 h-4 text-blue-500" />
+                  <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Role:</span>
+                  <select
+                    value={userRole}
+                    onChange={(e) => setUserRole(e.target.value)}
+                    className="bg-transparent text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none cursor-pointer"
+                  >
+                    <option value="Admin">Admin (Full)</option>
+                    <option value="Procurement User">Procurement</option>
+                    <option value="Viewer">Viewer (Read Only)</option>
+                  </select>
+                </div>
+
+                <button
+                  onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                  className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                  title="Toggle Theme"
+                >
+                  {theme === 'dark' ? <Icon name="sun" className="w-4 h-4 text-amber-400" /> : <Icon name="moon" className="w-4 h-4 text-slate-600" />}
+                </button>
+              </div>
+
+            </div>
+          </header>
+
+          {/* Main Container */}
+          <main className="max-w-7xl mx-auto px-4 lg:px-8 py-6">
+
+            {/* TAB 1: MASTER DIRECTORY */}
+            {activeTab === 'directory' && (
               <div className="space-y-6">
-                <div>
-                  <h3 className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider mb-3 flex items-center space-x-1.5">
-                    <Clock className="w-4 h-4" />
-                    <span>Lead Time Calculation</span>
-                  </h3>
-
-                  <div className="max-w-xs mb-4">
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                      Requested Delivery Date
-                    </label>
-                    <input
-                      type="date"
-                      value={calcInputs.requestedDeliveryDate}
-                      onChange={(e) => setCalcInputs({ ...calcInputs, requestedDeliveryDate: e.target.value })}
-                      className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-slate-100 cursor-pointer"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Suggested Order Date FC/FFC */}
-                    <div className="p-4 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50/50 dark:from-blue-950/30 dark:to-indigo-950/20 border border-blue-200 dark:border-blue-800/50 space-y-1.5">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-blue-600 dark:text-blue-400">
-                          Suggested Order Date (FC/FFC)
-                        </span>
-                        <Calendar className="w-4 h-4 text-blue-500" />
+                
+                {/* Header & Controls Bar */}
+                <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+                  <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
+                    
+                    {/* Search Input Bar */}
+                    <div className="relative w-full lg:w-96">
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                        <Icon name="search" className="w-4 h-4" />
                       </div>
-                      <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-                        {calculatedLeadTimes.suggestedFC}
-                      </div>
-                      <div className="text-[10px] font-mono text-slate-500 dark:text-slate-400 pt-1 border-t border-blue-100 dark:border-blue-900/40">
-                        Requested Delivery Date - Leadtime FC ({calcInputs.leadTimeFC}d)
-                      </div>
-                    </div>
-
-                    {/* Suggested Order Date Non-FC */}
-                    <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50/50 dark:from-amber-950/30 dark:to-orange-950/20 border border-amber-200 dark:border-amber-800/50 space-y-1.5">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-amber-600 dark:text-amber-400">
-                          Suggested Order Date (Non-FC)
-                        </span>
-                        <Calendar className="w-4 h-4 text-amber-500" />
-                      </div>
-                      <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-                        {calculatedLeadTimes.suggestedNonFC}
-                      </div>
-                      <div className="text-[10px] font-mono text-slate-500 dark:text-slate-400 pt-1 border-t border-amber-100 dark:border-amber-900/40">
-                        Requested Delivery Date - Leadtime Non-FC ({calcInputs.leadTimeNonFC}d)
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 2. Actual Order Date & PR Lead Time Verification Section */}
-                <div className="border-t border-slate-100 dark:border-slate-800 pt-6 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider flex items-center space-x-1.5">
-                      <ArrowRight className="w-4 h-4" />
-                      <span>Actual Order Date</span>
-                    </h3>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                    {/* Actual PR Received Date input */}
-                    <div>
-                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                        Actual PR Received Date
-                      </label>
                       <input
-                        type="date"
-                        value={calcInputs.actualPrReceivedDate}
-                        onChange={(e) => setCalcInputs({ ...calcInputs, actualPrReceivedDate: e.target.value })}
-                        className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 cursor-pointer"
+                        type="text"
+                        placeholder="Search Code, Material Name, Vendor..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full pl-9 pr-8 py-2 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-slate-100"
                       />
+                      {searchQuery && (
+                        <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                          <Icon name="x" className="w-3.5 h-3.5" />
+                        </button>
+                      )}
                     </div>
 
-                    {/* Order Type Selector */}
-                    <div>
-                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                        Order Type / Standard Target
-                      </label>
-                      <select
-                        value={calcInputs.orderType}
-                        onChange={(e) => setCalcInputs({ ...calcInputs, orderType: e.target.value })}
-                        className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 cursor-pointer"
+                    {/* Export & Action Buttons */}
+                    <div className="flex items-center space-x-2 w-full lg:w-auto justify-end">
+                      <button
+                        onClick={handleExportCSV}
+                        className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-xl flex items-center space-x-1.5 shadow-md shadow-emerald-500/10 transition-all"
                       >
-                        <option value="FC">FC / FFC Order ({calcInputs.leadTimeFC} Days Target)</option>
-                        <option value="Non-FC">Non-FC Order ({calcInputs.leadTimeNonFC} Days Target)</option>
+                        <Icon name="download" className="w-3.5 h-3.5" />
+                        <span>Export CSV / Excel</span>
+                      </button>
+
+                      {userRole === 'Admin' && (
+                        <button
+                          onClick={() => setActiveTab('excel')}
+                          className="px-3.5 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl flex items-center space-x-1.5 shadow-md shadow-blue-500/10 transition-all"
+                        >
+                          <Icon name="plus" className="w-3.5 h-3.5" />
+                          <span>Import Excel</span>
+                        </button>
+                      )}
+
+                      {/* View Mode Toggle */}
+                      <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <button
+                          onClick={() => setViewMode('table')}
+                          className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${viewMode === 'table' ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-slate-500'}`}
+                        >
+                          Table
+                        </button>
+                        <button
+                          onClick={() => setViewMode('grid')}
+                          className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${viewMode === 'grid' ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-slate-500'}`}
+                        >
+                          Grid
+                        </button>
+                      </div>
+                    </div>
+
+                  </div>
+
+                  {/* Filters & Sorting */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Filter Vendor</label>
+                      <select
+                        value={selectedVendor}
+                        onChange={(e) => setSelectedVendor(e.target.value)}
+                        className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs p-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      >
+                        {vendorsList.map(v => <option key={v} value={v}>{v}</option>)}
                       </select>
                     </div>
 
-                    {/* Calculated Actual Leadtime Display */}
                     <div>
-                      <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                        Actual Leadtime
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Filter Origin</label>
+                      <select
+                        value={selectedOrigin}
+                        onChange={(e) => setSelectedOrigin(e.target.value)}
+                        className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs p-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      >
+                        {originList.map(o => <option key={o} value={o}>{o}</option>)}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Sort By</label>
+                      <select
+                        value={sortBy}
+                        onChange={(e) => setSortBy(e.target.value)}
+                        className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs p-2 text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      >
+                        <option value="code">Item No. (A-Z)</option>
+                        <option value="name">Item Name (A-Z)</option>
+                        <option value="priceAsc">Price: Low to High</option>
+                        <option value="priceDesc">Price: High to Low</option>
+                        <option value="ltAsc">Lead Time FC: Shortest First</option>
+                        <option value="ltDesc">Lead Time FC: Longest First</option>
+                      </select>
+                    </div>
+
+                    <div className="flex items-end">
+                      <button
+                        onClick={() => { setSearchQuery(''); setSelectedVendor('All'); setSelectedOrigin('All'); setSortBy('code'); }}
+                        className="w-full py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-semibold rounded-lg border border-slate-200 dark:border-slate-700 flex items-center justify-center space-x-1"
+                      >
+                        <Icon name="refresh-cw" className="w-3.5 h-3.5" />
+                        <span>Reset Filters</span>
+                      </button>
+                    </div>
+                  </div>
+
+                </div>
+
+                {/* Table View */}
+                {viewMode === 'table' ? (
+                  <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-xs border-collapse">
+                        <thead>
+                          <tr className="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 font-bold border-b border-slate-200 dark:border-slate-800 uppercase tracking-wider">
+                            <th className="p-3.5">Material Code</th>
+                            <th className="p-3.5">Material Name</th>
+                            <th className="p-3.5">Vendor & Origin</th>
+                            <th className="p-3.5">Unit Price</th>
+                            <th className="p-3.5">MOQ</th>
+                            <th className="p-3.5">Lead Time (FC / Spot)</th>
+                            <th className="p-3.5">Risk Status</th>
+                            <th className="p-3.5 text-right">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
+                          {filteredMaterials.map((m) => {
+                            const risk = getRiskStatus(m.currentStock, m.monthlyConsumption, m.leadTimeFC, m.safetyStock);
+                            return (
+                              <tr key={m.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
+                                <td className="p-3.5 font-mono font-bold text-blue-600 dark:text-blue-400">
+                                  {m.materialCode}
+                                </td>
+                                <td className="p-3.5 max-w-xs">
+                                  <div className="font-semibold text-slate-900 dark:text-slate-100 truncate">{m.materialName}</div>
+                                  <div className="text-[10px] text-slate-400">{m.packingSize} • Category: {m.category}</div>
+                                </td>
+                                <td className="p-3.5">
+                                  <div className="font-medium text-slate-800 dark:text-slate-200">{m.vendorName}</div>
+                                  <div className="text-[10px] text-slate-400 flex items-center space-x-1 mt-0.5">
+                                    <Icon name="globe" className="w-3 h-3 text-slate-400" />
+                                    <span>{m.origin} ({m.vendorNumber})</span>
+                                  </div>
+                                </td>
+                                <td className="p-3.5 font-semibold text-slate-900 dark:text-slate-100">
+                                  ${m.currentPrice.toFixed(2)}
+                                </td>
+                                <td className="p-3.5">
+                                  {m.moq.toLocaleString()} pcs
+                                </td>
+                                <td className="p-3.5">
+                                  <div className="flex items-center space-x-1">
+                                    <span className="px-1.5 py-0.5 bg-blue-500/10 text-blue-500 rounded font-semibold">{m.leadTimeFC}d FC</span>
+                                    <span className="text-slate-400">/</span>
+                                    <span className="px-1.5 py-0.5 bg-amber-500/10 text-amber-500 rounded font-semibold">{m.leadTimeNonFC}d Spot</span>
+                                  </div>
+                                </td>
+                                <td className="p-3.5">
+                                  <span className={`px-2 py-0.5 rounded-full border text-[10px] font-bold ${risk.color}`}>
+                                    {risk.badge} Risk
+                                  </span>
+                                </td>
+                                <td className="p-3.5 text-right space-x-1">
+                                  <button
+                                    onClick={() => { setSelectedMaterial(m); setIsDetailOpen(true); }}
+                                    className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-600 dark:text-slate-300 transition-colors"
+                                    title="View Details"
+                                  >
+                                    <Icon name="eye" className="w-3.5 h-3.5" />
+                                  </button>
+                                  <button
+                                    onClick={() => openCalculatorForMaterial(m)}
+                                    className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-emerald-600 hover:text-white text-slate-600 dark:text-slate-300 transition-colors"
+                                    title="Open Lead Time Calculator"
+                                  >
+                                    <Icon name="calculator" className="w-3.5 h-3.5" />
+                                  </button>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                ) : (
+                  /* Grid View */
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {filteredMaterials.map((m) => {
+                      const risk = getRiskStatus(m.currentStock, m.monthlyConsumption, m.leadTimeFC, m.safetyStock);
+                      return (
+                        <div key={m.id} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+                          <div>
+                            <div className="flex items-center justify-between">
+                              <span className="font-mono text-xs font-bold text-blue-500 bg-blue-500/10 px-2.5 py-1 rounded-lg">
+                                {m.materialCode}
+                              </span>
+                              <span className={`px-2 py-0.5 rounded-full border text-[10px] font-bold ${risk.color}`}>
+                                {risk.badge} Risk
+                              </span>
+                            </div>
+
+                            <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100 mt-3 line-clamp-2">
+                              {m.materialName}
+                            </h3>
+                            <p className="text-xs text-slate-400 mt-1">{m.vendorName} • {m.origin}</p>
+
+                            <div className="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 text-xs">
+                              <div>
+                                <span className="text-[10px] text-slate-400 block uppercase">Price / MOQ</span>
+                                <span className="font-semibold text-slate-800 dark:text-slate-200">${m.currentPrice.toFixed(2)} ({m.moq} MOQ)</span>
+                              </div>
+                              <div>
+                                <span className="text-[10px] text-slate-400 block uppercase">Lead Time (FC/Spot)</span>
+                                <span className="font-semibold text-blue-500">{m.leadTimeFC}d</span> / <span className="font-semibold text-amber-500">{m.leadTimeNonFC}d</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-between mt-5 pt-3 border-t border-slate-100 dark:border-slate-800">
+                            <button
+                              onClick={() => { setSelectedMaterial(m); setIsDetailOpen(true); }}
+                              className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-xs font-semibold rounded-lg text-slate-700 dark:text-slate-200 flex items-center space-x-1"
+                            >
+                              <Icon name="eye" className="w-3.5 h-3.5" />
+                              <span>Details</span>
+                            </button>
+                            <button
+                              onClick={() => openCalculatorForMaterial(m)}
+                              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg flex items-center space-x-1 shadow-sm"
+                            >
+                              <Icon name="calculator" className="w-3.5 h-3.5" />
+                              <span>Calculate</span>
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+              </div>
+            )}
+
+            {/* TAB 2: LEAD TIME CALCULATOR */}
+            {activeTab === 'calculator' && (
+              <div className="space-y-6">
+                
+                {/* Material Select Header */}
+                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+                  <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center space-x-2">
+                    <Icon name="calculator" className="w-5 h-5 text-blue-500" />
+                    <span>Lead Time & Order Date Calculation</span>
+                  </h2>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
+                        Search Material
                       </label>
-                      <div className="p-2.5 bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-slate-100 flex items-center justify-between">
-                        <span>{calculatedLeadTimes.actualLeadtime} Days</span>
-                        <span className="text-[10px] text-slate-400 font-normal">
-                          (Target: {calculatedLeadTimes.targetStandardLeadtime}d)
-                        </span>
+                      <div className="relative">
+                        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                          <Icon name="search" className="w-4 h-4" />
+                        </div>
+                        <input
+                          type="text"
+                          placeholder="Search Code, Name or Vendor..."
+                          value={calcSearchQuery}
+                          onChange={(e) => setCalcSearchQuery(e.target.value)}
+                          className="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
+                        Select Target Material
+                      </label>
+                      <select
+                        value={calcMaterial.id}
+                        onChange={(e) => {
+                          const mat = materials.find(m => m.id === e.target.value);
+                          if (mat) openCalculatorForMaterial(mat);
+                        }}
+                        className="w-full p-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        {calcFilteredMaterials.map(m => (
+                          <option key={m.id} value={m.id}>
+                            [{m.materialCode}] {m.materialName} ({m.vendorName})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Calculation Body */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  
+                  {/* Left Column: Calculation Inputs */}
+                  <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
+                    <div>
+                      <h3 className="text-sm font-bold text-blue-500 uppercase tracking-wider flex items-center space-x-2">
+                        <Icon name="calendar" className="w-4 h-4" />
+                        <span>1. Lead Time Calculation</span>
+                      </h3>
+                      <p className="text-xs text-slate-400 mt-1">Determine suggested order dates based on standard lead times.</p>
+                    </div>
+
+                    <div className="space-y-4 text-xs">
+                      <div>
+                        <label className="block font-semibold mb-1 text-slate-700 dark:text-slate-300">
+                          Requested Delivery Date
+                        </label>
+                        <input
+                          type="date"
+                          value={calcInputs.requestedDeliveryDate}
+                          onChange={(e) => setCalcInputs({ ...calcInputs, requestedDeliveryDate: e.target.value })}
+                          className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-mono text-xs focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3 pt-2">
+                        <div className="p-3 bg-blue-500/5 rounded-xl border border-blue-500/10">
+                          <span className="text-[10px] text-slate-400 uppercase font-bold block">Leadtime FC / FFC</span>
+                          <span className="text-base font-bold text-blue-500">{calcInputs.leadTimeFC} Days</span>
+                        </div>
+                        <div className="p-3 bg-amber-500/5 rounded-xl border border-amber-500/10">
+                          <span className="text-[10px] text-slate-400 uppercase font-bold block">Leadtime Non-FC</span>
+                          <span className="text-base font-bold text-amber-500">{calcInputs.leadTimeNonFC} Days</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-4">
+                      <div>
+                        <h3 className="text-sm font-bold text-indigo-500 uppercase tracking-wider flex items-center space-x-2">
+                          <Icon name="clock" className="w-4 h-4" />
+                          <span>2. Actual Order Date Verification</span>
+                        </h3>
+                        <p className="text-xs text-slate-400 mt-1">Compare actual PR receipt date against standard thresholds.</p>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                        <div>
+                          <label className="block font-semibold mb-1 text-slate-700 dark:text-slate-300">
+                            Actual PR Received Date
+                          </label>
+                          <input
+                            type="date"
+                            value={calcInputs.actualPrReceivedDate}
+                            onChange={(e) => setCalcInputs({ ...calcInputs, actualPrReceivedDate: e.target.value })}
+                            className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl font-mono text-xs focus:ring-2 focus:ring-blue-500"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block font-semibold mb-1 text-slate-700 dark:text-slate-300">
+                            Order Category
+                          </label>
+                          <select
+                            value={calcInputs.orderType}
+                            onChange={(e) => setCalcInputs({ ...calcInputs, orderType: e.target.value })}
+                            className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-blue-500"
+                          >
+                            <option value="FC">FC / FFC Order ({calcInputs.leadTimeFC}d)</option>
+                            <option value="Non-FC">Non-FC Order ({calcInputs.leadTimeNonFC}d)</option>
+                          </select>
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Warning / Status Indicator Box */}
-                  <div className="pt-2">
-                    {calculatedLeadTimes.isShortLeadtime ? (
-                      /* Red Alert - Short Leadtime */
-                      <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 flex items-start space-x-3 animate-pulse">
-                        <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5 text-rose-500" />
-                        <div className="space-y-1 text-xs">
-                          <div className="flex items-center space-x-2">
-                            <span className="font-bold text-sm px-2.5 py-0.5 bg-rose-500 text-white rounded-lg">
-                              Short leadtime
-                            </span>
-                            <span className="font-mono text-xs text-rose-700 dark:text-rose-300">
-                              (Short by {Math.abs(calculatedLeadTimes.daysDiff)} Days)
-                            </span>
+                  {/* Right Column: Calculated Results */}
+                  <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between space-y-6">
+                    <div>
+                      <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider mb-4">
+                        Calculation Output & Schedule
+                      </h3>
+
+                      <div className="space-y-3 text-xs">
+                        {/* Suggested Date FC */}
+                        <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                          <div>
+                            <span className="text-[10px] text-slate-400 uppercase font-bold block">Suggested Order Date (FC/FFC)</span>
+                            <span className="text-xs text-slate-500">Requested Date - Leadtime FC</span>
                           </div>
-                          <p className="text-slate-600 dark:text-slate-300 text-[11px] pt-1">
-                            Actual Leadtime ({calculatedLeadTimes.actualLeadtime} days) is shorter than required standard lead time ({calculatedLeadTimes.targetStandardLeadtime} days). High risk of delivery delay.
-                          </p>
+                          <span className="font-mono text-sm font-bold text-blue-500 bg-blue-500/10 px-3 py-1 rounded-lg">
+                            {calculatedLeadTimes.suggestedFC}
+                          </span>
+                        </div>
+
+                        {/* Suggested Date Non-FC */}
+                        <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                          <div>
+                            <span className="text-[10px] text-slate-400 uppercase font-bold block">Suggested Order Date (Non-FC)</span>
+                            <span className="text-xs text-slate-500">Requested Date - Leadtime Non-FC</span>
+                          </div>
+                          <span className="font-mono text-sm font-bold text-amber-500 bg-amber-500/10 px-3 py-1 rounded-lg">
+                            {calculatedLeadTimes.suggestedNonFC}
+                          </span>
+                        </div>
+
+                        {/* Actual Leadtime Computed */}
+                        <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                          <div>
+                            <span className="text-[10px] text-slate-400 uppercase font-bold block">Actual Leadtime Available</span>
+                            <span className="text-xs text-slate-500">Requested Delivery Date - PR Received Date</span>
+                          </div>
+                          <span className="font-mono text-sm font-bold text-slate-800 dark:text-slate-100 bg-slate-200 dark:bg-slate-700 px-3 py-1 rounded-lg">
+                            {calculatedLeadTimes.actualLeadtime} Days
+                          </span>
                         </div>
                       </div>
-                    ) : (
-                      /* Green Status - Follow Leadtime */
-                      <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 flex items-start space-x-3">
-                        <CheckCircle className="w-5 h-5 flex-shrink-0 mt-0.5 text-emerald-500" />
-                        <div className="space-y-1 text-xs">
-                          <div className="flex items-center space-x-2">
-                            <span className="font-bold text-sm px-2.5 py-0.5 bg-emerald-600 text-white rounded-lg">
-                              Follow leadtime
-                            </span>
-                            <span className="font-mono text-xs text-emerald-700 dark:text-emerald-300">
-                              (+{calculatedLeadTimes.daysDiff} Days Buffer)
-                            </span>
+                    </div>
+
+                    {/* Status Alert Banner */}
+                    <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
+                      {calculatedLeadTimes.isShortLeadtime ? (
+                        <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-500 flex items-start space-x-3">
+                          <Icon name="alert-triangle" className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                          <div>
+                            <h4 className="font-bold text-sm">Warning: Short leadtime</h4>
+                            <p className="text-xs text-rose-400 mt-1">
+                              Actual leadtime ({calculatedLeadTimes.actualLeadtime}d) is shorter than standard threshold ({calculatedLeadTimes.targetStandardLeadtime}d). High risk of stock-out!
+                            </p>
                           </div>
-                          <p className="text-slate-600 dark:text-slate-300 text-[11px] pt-1">
-                            Actual Leadtime ({calculatedLeadTimes.actualLeadtime} days) meets or exceeds standard target lead time ({calculatedLeadTimes.targetStandardLeadtime} days). Procurement cycle is compliant.
-                          </p>
                         </div>
-                      </div>
-                    )}
+                      ) : (
+                        <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 flex items-start space-x-3">
+                          <Icon name="check-circle" className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                          <div>
+                            <h4 className="font-bold text-sm">Status: Follow leadtime</h4>
+                            <p className="text-xs text-emerald-400 mt-1">
+                              Actual leadtime ({calculatedLeadTimes.actualLeadtime}d) meets required leadtime ({calculatedLeadTimes.targetStandardLeadtime}d). Order timeline is on schedule.
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
                   </div>
 
-                </div>
-
-                {/* Calculation Info Box */}
-                <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-700/60 text-xs space-y-1.5 text-slate-600 dark:text-slate-300">
-                  <div className="flex items-center space-x-1.5 font-bold text-slate-800 dark:text-slate-200">
-                    <Info className="w-4 h-4 text-blue-500" />
-                    <span>Calculation Formulas</span>
-                  </div>
-                  <p className="text-[11px]">
-                    <strong>Suggested Order Date (FC/FFC)</strong> = Requested Delivery Date - Leadtime FC/FFC ({calcInputs.leadTimeFC} days)
-                  </p>
-                  <p className="text-[11px]">
-                    <strong>Suggested Order Date (Non-FC)</strong> = Requested Delivery Date - Leadtime Non-FC ({calcInputs.leadTimeNonFC} days)
-                  </p>
-                  <p className="text-[11px]">
-                    <strong>Actual Leadtime</strong> = Requested Delivery Date - Actual PR Received Date
-                  </p>
                 </div>
 
               </div>
+            )}
 
-            </div>
+            {/* TAB 3: SOURCE EXCEL */}
+            {activeTab === 'excel' && (
+              <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm text-center space-y-4">
+                <div className="w-16 h-16 bg-blue-500/10 text-blue-500 rounded-2xl flex items-center justify-center mx-auto">
+                  <Icon name="file-spreadsheet" className="w-8 h-8" />
+                </div>
+                <h2 className="text-lg font-bold">Import Master Data Excel File</h2>
+                <p className="text-xs text-slate-400 max-w-md mx-auto">
+                  Drag and drop your updated Excel/CSV file here to refresh material codes, lead times, and unit prices across the system.
+                </p>
+                <div className="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-2xl p-10 hover:border-blue-500 transition-colors cursor-pointer max-w-lg mx-auto">
+                  <Icon name="upload" className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+                  <span className="text-xs font-semibold text-slate-500">Click to upload or drag .XLSX / .CSV</span>
+                </div>
+              </div>
+            )}
 
-          </div>
-        )}
+            {/* TAB 4: SYSTEM SPECS */}
+            {activeTab === 'docs' && (
+              <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+                <h2 className="text-base font-bold flex items-center space-x-2">
+                  <Icon name="terminal" className="w-5 h-5 text-indigo-500" />
+                  <span>System Architecture & API Specifications</span>
+                </h2>
+                <p className="text-xs text-slate-400">
+                  Documentation for PostgreSQL Schema, API endpoints, and scalable backend design for over 50,000+ materials.
+                </p>
+                <div className="p-4 bg-slate-950 font-mono text-xs rounded-xl text-emerald-400 overflow-x-auto">
+                  <pre>{`
+-- Material Master Table Schema
+CREATE TABLE material_master (
+    material_code VARCHAR(50) PRIMARY KEY,
+    material_name VARCHAR(255) NOT NULL,
+    vendor_number VARCHAR(50),
+    vendor_name VARCHAR(255),
+    origin VARCHAR(100),
+    packing_size VARCHAR(100),
+    shelf_life INT,
+    current_price DECIMAL(12,2),
+    moq INT,
+    lead_time_fc INT,
+    lead_time_non_fc INT,
+    last_update_date DATE,
+    additional_notes TEXT
+);
 
-        {/* ------------------------------------------------------------- */}
-        {/* TAB 3: EXCEL DATA PIPELINE & ETL UPLOADER */}
-        {/* ------------------------------------------------------------- */}
-        {activeTab === 'excel' && (
-          <div className="space-y-6 animate-fadeIn max-w-4xl mx-auto">
-            
-            <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center space-x-2">
-                    <FileSpreadsheet className="w-5 h-5 text-emerald-500" />
-                    <span>Material Master Excel ETL Import Pipeline</span>
-                  </h2>
-                  <p className="text-xs text-slate-400 mt-1">
-                    Upload formatted spreadsheet to batch ingest and update material master records.
+CREATE INDEX idx_material_search ON material_master(material_code, material_name);
+                  `}</pre>
+                </div>
+              </div>
+            )}
+
+          </main>
+
+          {/* DETAIL MODAL */}
+          {isDetailOpen && selectedMaterial && (
+            <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 max-w-lg w-full space-y-4 shadow-xl">
+                <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                  <span className="font-mono text-xs font-bold text-blue-500 bg-blue-500/10 px-2.5 py-1 rounded-lg">
+                    {selectedMaterial.materialCode}
+                  </span>
+                  <button onClick={() => setIsDetailOpen(false)} className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+                    <Icon name="x" className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <h3 className="font-bold text-base">{selectedMaterial.materialName}</h3>
+
+                <div className="grid grid-cols-2 gap-3 text-xs">
+                  <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                    <span className="text-[10px] text-slate-400 uppercase font-bold block">Vendor</span>
+                    <span className="font-semibold">{selectedMaterial.vendorName} ({selectedMaterial.vendorNumber})</span>
+                  </div>
+                  <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                    <span className="text-[10px] text-slate-400 uppercase font-bold block">Origin</span>
+                    <span className="font-semibold">{selectedMaterial.origin}</span>
+                  </div>
+                  <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                    <span className="text-[10px] text-slate-400 uppercase font-bold block">Unit Price</span>
+                    <span className="font-semibold">${selectedMaterial.currentPrice.toFixed(2)}</span>
+                  </div>
+                  <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                    <span className="text-[10px] text-slate-400 uppercase font-bold block">MOQ</span>
+                    <span className="font-semibold">{selectedMaterial.moq.toLocaleString()} pcs</span>
+                  </div>
+                </div>
+
+                <div className="pt-2">
+                  <span className="text-[10px] text-slate-400 uppercase font-bold block mb-1">Notes</span>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 italic bg-slate-50 dark:bg-slate-800 p-3 rounded-xl">
+                    "{selectedMaterial.additionalNotes || 'No notes available.'}"
                   </p>
                 </div>
 
                 <button
-                  onClick={handleExportCSV}
-                  className="px-3.5 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded-xl flex items-center space-x-1.5 border border-slate-200 dark:border-slate-700"
+                  onClick={() => setIsDetailOpen(false)}
+                  className="w-full py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-xs font-semibold rounded-xl text-slate-700 dark:text-slate-200"
                 >
-                  <Download className="w-3.5 h-3.5 text-emerald-500" />
-                  <span>Download Excel Template</span>
+                  Close
                 </button>
               </div>
-
-              {/* Upload Dropzone Container */}
-              <div className="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-2xl p-8 text-center hover:border-blue-500 transition-colors bg-slate-50/50 dark:bg-slate-800/30">
-                <Upload className="w-10 h-10 text-blue-500 mx-auto mb-3" />
-                <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">
-                  Drag and drop your Material Master .xlsx or .csv file here
-                </h3>
-                <p className="text-xs text-slate-400 mt-1 max-w-md mx-auto">
-                  Supports standard SAP/ERP master data columns: Material Code, Vendor Number, Price, Lead Time FC/Non-FC, MOQ, and Shelf Life.
-                </p>
-
-                <div className="mt-5">
-                  <label className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl cursor-pointer shadow-lg shadow-blue-500/20 inline-flex items-center space-x-2">
-                    <FileSpreadsheet className="w-4 h-4" />
-                    <span>Browse Computer</span>
-                    <input
-                      type="file"
-                      accept=".csv, .xlsx"
-                      className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files[0];
-                        if (file) {
-                          alert(`Simulated pipeline successfully validated and staged file: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`);
-                        }
-                      }}
-                    />
-                  </label>
-                </div>
-              </div>
-
-              {/* ETL Ingestion Rules & Data Validation checklist */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-                <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
-                  <div className="flex items-center space-x-2 text-xs font-bold text-slate-700 dark:text-slate-200">
-                    <CheckCircle className="w-4 h-4 text-emerald-500" />
-                    <span>Schema Validation</span>
-                  </div>
-                  <p className="text-[11px] text-slate-400 mt-1">Automatic verification of non-null Material Codes & Prices.</p>
-                </div>
-
-                <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
-                  <div className="flex items-center space-x-2 text-xs font-bold text-slate-700 dark:text-slate-200">
-                    <CheckCircle className="w-4 h-4 text-emerald-500" />
-                    <span>Vendor Cross-Check</span>
-                  </div>
-                  <p className="text-[11px] text-slate-400 mt-1">Validates Vendor Number against ERP Supplier Master table.</p>
-                </div>
-
-                <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
-                  <div className="flex items-center space-x-2 text-xs font-bold text-slate-700 dark:text-slate-200">
-                    <CheckCircle className="w-4 h-4 text-emerald-500" />
-                    <span>Audit Trail Log</span>
-                  </div>
-                  <p className="text-[11px] text-slate-400 mt-1">Tracks editor identity and timestamp for version control.</p>
-                </div>
-              </div>
-
             </div>
+          )}
 
-          </div>
-        )}
-
-        {/* ------------------------------------------------------------- */}
-        {/* TAB 4: TECHNICAL SPECS, ARCHITECTURE, SCHEMA & APIS */}
-        {/* ------------------------------------------------------------- */}
-        {activeTab === 'docs' && (
-          <div className="space-y-6 animate-fadeIn max-w-5xl mx-auto">
-            
-            <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
-              
-              <div>
-                <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center space-x-2">
-                  <Terminal className="w-6 h-6 text-indigo-500" />
-                  <span>Enterprise System Architecture & Specifications</span>
-                </h2>
-                <p className="text-xs text-slate-400 mt-1">
-                  Full stack architecture design, relational PostgreSQL schema, RESTful OpenAPI definitions, and scalability blueprints.
-                </p>
-              </div>
-
-              {/* Section 1: System Architecture Diagram */}
-              <div className="p-5 bg-slate-900 text-slate-100 rounded-xl border border-slate-800 font-mono text-xs space-y-3 overflow-x-auto">
-                <div className="flex items-center justify-between text-indigo-400 font-bold border-b border-slate-800 pb-2">
-                  <span>1. High-Level Architecture Blueprint</span>
-                  <span className="text-[10px] text-slate-500">React + Node/Python + PostgreSQL</span>
-                </div>
-                <pre className="text-slate-300 leading-relaxed text-[11px]">
-{`+-------------------------------------------------------------------------------+
-|                       REACT / TAILWIND FRONTEND SPA                           |
-|  [ Master Directory ]      [ Lead Time Calculator ]      [ Excel ETL Pipeline ]|
-+---------------------------------------+---------------------------------------+
-                                        | HTTPS / REST API
-                                        v
-+-------------------------------------------------------------------------------+
-|                     API GATEWAY / NODE.JS (EXPRESS) / PYTHON (FLASK)          |
-|  - JWT Authentication & RBAC Middleware (Admin, Procurement, Viewer)          |
-|  - Rate Limiter & Input Validation Engine                                    |
-|  - Excel / OpenPyXL Parsing Batch Worker Pipeline                             |
-+-------------------+-----------------------------------+-----------------------+
-                    |                                   |
-         Read/Write |                                   | Caching Layer
-                    v                                   v
-+---------------------------------------+   +-----------------------------------+
-|     POSTGRESQL RELATIONAL DATABASE    |   |     REDIS IN-MEMORY CACHE         |
-| - B-Tree Indexes on Material Code     |   | - 50k SKU Directory Query Caching |
-| - Full-Text Search (pg_trgm extension)|   | - Active User Session Tokens      |
-| - Audit Logging Trigger Chains        |   | - Fast Lead Time Lookups          |
-+---------------------------------------+   +-----------------------------------+`}
-                </pre>
-              </div>
-
-              {/* Section 2: Relational Database Schema (SQL) */}
-              <div className="p-5 bg-slate-900 text-slate-100 rounded-xl border border-slate-800 font-mono text-xs space-y-3">
-                <div className="flex items-center justify-between text-emerald-400 font-bold border-b border-slate-800 pb-2">
-                  <span>2. Relational Database DDL Schema (PostgreSQL)</span>
-                  <span className="text-[10px] text-slate-500">Indexed & Scalable for 50k+ SKUs</span>
-                </div>
-                <pre className="text-slate-300 text-[11px] overflow-x-auto">
-{`-- Material Master Table Definition
-CREATE TABLE material_master (
-    material_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    material_code VARCHAR(50) UNIQUE NOT NULL,
-    material_name VARCHAR(255) NOT NULL,
-    vendor_id UUID REFERENCES vendor_master(vendor_id),
-    country_of_origin VARCHAR(100) NOT NULL,
-    packing_size VARCHAR(100),
-    shelf_life_days INT DEFAULT 365,
-    current_unit_price NUMERIC(12, 4) NOT NULL,
-    minimum_order_quantity INT DEFAULT 1,
-    lead_time_fc_days INT NOT NULL,
-    lead_time_non_fc_days INT NOT NULL,
-    additional_notes TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
--- Fast Search Indexes
-CREATE INDEX idx_material_code ON material_master(material_code);
-CREATE INDEX idx_material_search ON material_master USING gin (material_name gin_trgm_ops);`}
-                </pre>
-              </div>
-
-              {/* Section 3: REST API Definitions */}
-              <div className="p-5 bg-slate-900 text-slate-100 rounded-xl border border-slate-800 font-mono text-xs space-y-3">
-                <div className="flex items-center justify-between text-amber-400 font-bold border-b border-slate-800 pb-2">
-                  <span>3. RESTful API Specification</span>
-                  <span className="text-[10px] text-slate-500">OpenAPI Endpoint Mapping</span>
-                </div>
-                <div className="space-y-2 text-[11px]">
-                  <div className="flex items-center space-x-2">
-                    <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-400 rounded font-bold">GET</span>
-                    <span className="text-slate-200">/api/v1/materials?search=...&vendor=...&page=1&limit=50</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded font-bold">POST</span>
-                    <span className="text-slate-200">/api/v1/materials/import-excel</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="px-2 py-0.5 bg-purple-500/20 text-purple-400 rounded font-bold">POST</span>
-                    <span className="text-slate-200">/api/v1/analytics/leadtime-calculate</span>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-
-          </div>
-        )}
-
-      </main>
-
-      {/* Detail View Modal */}
-      {isDetailOpen && selectedMaterial && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl space-y-6">
-            
-            {/* Modal Header */}
-            <div className="flex items-start justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
-              <div>
-                <span className="px-2.5 py-1 bg-blue-500/10 text-blue-500 font-mono text-xs font-bold rounded-lg">
-                  {selectedMaterial.materialCode}
-                </span>
-                <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mt-2">
-                  {selectedMaterial.materialName}
-                </h3>
-              </div>
-              <button
-                onClick={() => setIsDetailOpen(false)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Material Information Sections */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-              
-              {/* Section 1: Vendor & General */}
-              <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 space-y-2">
-                <span className="font-bold text-slate-500 uppercase tracking-wider block text-[10px]">Vendor & Origin</span>
-                <div className="font-semibold text-slate-900 dark:text-slate-100">{selectedMaterial.vendorName}</div>
-                <div className="text-slate-500">Vendor ID: {selectedMaterial.vendorNumber}</div>
-                <div className="text-slate-500">Country of Origin: {selectedMaterial.origin}</div>
-                <div className="text-slate-500">Packing: {selectedMaterial.packingSize}</div>
-              </div>
-
-              {/* Section 2: Commercial & Pricing */}
-              <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 space-y-2">
-                <span className="font-bold text-slate-500 uppercase tracking-wider block text-[10px]">Commercial Metrics</span>
-                <div className="text-base font-bold text-emerald-500">${selectedMaterial.currentPrice.toFixed(2)} / unit</div>
-                <div className="text-slate-500">MOQ: {selectedMaterial.moq.toLocaleString()} pcs</div>
-                <div className="text-slate-500">Shelf Life: {selectedMaterial.shelfLife} Days</div>
-                <div className="text-slate-500">Last Modified: {selectedMaterial.lastUpdateDate}</div>
-              </div>
-
-              {/* Section 3: Lead Times */}
-              <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 space-y-2 col-span-1 md:col-span-2">
-                <span className="font-bold text-slate-500 uppercase tracking-wider block text-[10px]">Lead Time Agreements</span>
-                <div className="grid grid-cols-2 gap-4 pt-1">
-                  <div className="p-3 bg-blue-500/10 rounded-lg text-blue-500">
-                    <span className="block text-[10px] font-bold">Contract FC / FFC Lead Time</span>
-                    <span className="text-lg font-bold">{selectedMaterial.leadTimeFC} Days</span>
-                  </div>
-                  <div className="p-3 bg-amber-500/10 rounded-lg text-amber-500">
-                    <span className="block text-[10px] font-bold">Non-FC Spot Purchase Lead Time</span>
-                    <span className="text-lg font-bold">{selectedMaterial.leadTimeNonFC} Days</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Notes */}
-              <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 col-span-1 md:col-span-2 text-slate-600 dark:text-slate-300">
-                <span className="font-bold text-slate-500 uppercase tracking-wider block text-[10px] mb-1">Additional Operational Notes</span>
-                <p className="italic text-xs">{selectedMaterial.additionalNotes || 'No special handling requirements specified.'}</p>
-              </div>
-
-            </div>
-
-            {/* Footer Buttons */}
-            <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-4">
-              <button
-                onClick={() => setIsDetailOpen(false)}
-                className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold rounded-xl"
-              >
-                Close Window
-              </button>
-              <button
-                onClick={() => { setIsDetailOpen(false); openCalculatorForMaterial(selectedMaterial); }}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl flex items-center space-x-1.5 shadow-md shadow-blue-500/20"
-              >
-                <Calculator className="w-3.5 h-3.5" />
-                <span>Calculate Order Dates</span>
-              </button>
-            </div>
-
-          </div>
         </div>
-      )}
+      );
+    }
 
-    </div>
-  );
-}
+    // Render App
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
