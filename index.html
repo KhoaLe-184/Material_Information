@@ -32,6 +32,9 @@
   <!-- Lucide Icons Development / UMD -->
   <script src="https://unpkg.com/lucide@latest"></script>
 
+  <!-- SheetJS CDN (Thư viện đọc file Excel/CSV trực tiếp trên Browser) -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
   <style>
     .scrollbar-none::-webkit-scrollbar {
       display: none;
@@ -44,16 +47,13 @@
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans antialiased">
 
-  <!-- Root element cho React Mount -->
   <div id="root"></div>
 
-  <!-- React Code Component -->
   <script type="text/babel">
-    const { useState, useMemo, useEffect } = React;
+    const { useState, useMemo, useEffect, useRef } = React;
 
-    // Utility Component render Lucide Icons
     const Icon = ({ name, className = "w-4 h-4" }) => {
-      const containerRef = React.useRef(null);
+      const containerRef = useRef(null);
       useEffect(() => {
         if (containerRef.current && window.lucide) {
           containerRef.current.innerHTML = `<i data-lucide="${name}" class="${className}"></i>`;
@@ -130,111 +130,6 @@
         monthlyConsumption: 15000,
         safetyStock: 10000,
         forecastDemand: 16000
-      },
-      {
-        id: 'MAT-10088',
-        materialCode: 'MAT-10088',
-        materialName: 'Stainless Steel Hex Bolt M8x30mm 316',
-        vendorNumber: 'VND-801',
-        vendorName: 'Apex Metals & Alloys Corp',
-        origin: 'Germany',
-        packingSize: '1,000 pcs / Box',
-        shelfLife: 3650,
-        currentPrice: 0.45,
-        moq: 2000,
-        leadTimeFC: 7,
-        leadTimeNonFC: 14,
-        lastUpdateDate: '2026-07-10',
-        additionalNotes: 'Standard inventory item. Always maintain safety buffer.',
-        category: 'Fasteners',
-        currentStock: 8500,
-        monthlyConsumption: 2500,
-        safetyStock: 1500,
-        forecastDemand: 2800
-      },
-      {
-        id: 'MAT-70211',
-        materialCode: 'MAT-70211',
-        materialName: 'Industrial Synthetic Lubricant Oil ISO VG 220',
-        vendorNumber: 'VND-812',
-        vendorName: 'Vanguard Chemical Solutions',
-        origin: 'USA',
-        packingSize: '208 Litres / Steel Drum',
-        shelfLife: 365,
-        currentPrice: 850.00,
-        moq: 5,
-        leadTimeFC: 14,
-        leadTimeNonFC: 28,
-        lastUpdateDate: '2026-05-18',
-        additionalNotes: 'Hazardous handling protocols apply during transport.',
-        category: 'Chemicals',
-        currentStock: 4,
-        monthlyConsumption: 6,
-        safetyStock: 3,
-        forecastDemand: 7
-      },
-      {
-        id: 'MAT-90145',
-        materialCode: 'MAT-90145',
-        materialName: 'Precision Optical Glass Lens 50mm f/1.4',
-        vendorNumber: 'VND-815',
-        vendorName: 'OptiTech Photonics Inc',
-        origin: 'Taiwan',
-        packingSize: '50 pcs / Foam Padded Case',
-        shelfLife: 1825,
-        currentPrice: 145.00,
-        moq: 50,
-        leadTimeFC: 25,
-        leadTimeNonFC: 45,
-        lastUpdateDate: '2026-07-02',
-        additionalNotes: 'Requires dust-free cleanroom storage.',
-        category: 'Optics',
-        currentStock: 120,
-        monthlyConsumption: 40,
-        safetyStock: 30,
-        forecastDemand: 45
-      },
-      {
-        id: 'MAT-20833',
-        materialCode: 'MAT-20833',
-        materialName: 'Corrugated Shipping Box 400x300x300mm Heavy Duty',
-        vendorNumber: 'VND-820',
-        vendorName: 'Mekong Packaging Ltd',
-        origin: 'Vietnam',
-        packingSize: '100 Flat pcs / Pallet',
-        shelfLife: 180,
-        currentPrice: 1.20,
-        moq: 1000,
-        leadTimeFC: 5,
-        leadTimeNonFC: 10,
-        lastUpdateDate: '2026-07-29',
-        additionalNotes: 'Keep dry. High humidity reduces structural rating.',
-        category: 'Packaging',
-        currentStock: 1500,
-        monthlyConsumption: 3000,
-        safetyStock: 1000,
-        forecastDemand: 3200
-      },
-      {
-        id: 'MAT-60199',
-        materialCode: 'MAT-60199',
-        materialName: 'Lithium Iron Phosphate Battery Cell 3.2V 100Ah',
-        vendorNumber: 'VND-825',
-        vendorName: 'SinoPower Energy Tech',
-        origin: 'China',
-        packingSize: '12 Cells / Insulated Box',
-        shelfLife: 90,
-        currentPrice: 68.00,
-        moq: 240,
-        leadTimeFC: 40,
-        leadTimeNonFC: 75,
-        lastUpdateDate: '2026-07-20',
-        additionalNotes: 'Strict UN38.3 lithium transport compliance required.',
-        category: 'Energy',
-        currentStock: 180,
-        monthlyConsumption: 200,
-        safetyStock: 100,
-        forecastDemand: 220
       }
     ];
 
@@ -255,26 +150,21 @@
     };
 
     function App() {
-      const [materials] = useState(INITIAL_MATERIALS);
+      const [materials, setMaterials] = useState(INITIAL_MATERIALS);
       const [activeTab, setActiveTab] = useState('directory'); 
       const [theme, setTheme] = useState('dark');
       const [userRole, setUserRole] = useState('Admin');
       
-      // Search & Filter state for Directory
       const [searchQuery, setSearchQuery] = useState('');
       const [selectedVendor, setSelectedVendor] = useState('All');
       const [selectedOrigin, setSelectedOrigin] = useState('All');
       const [sortBy, setSortBy] = useState('code');
       const [viewMode, setViewMode] = useState('table');
 
-      // Search state for Lead Time Calculator Tab
       const [calcSearchQuery, setCalcSearchQuery] = useState('');
-
-      // Detail Modal State
       const [selectedMaterial, setSelectedMaterial] = useState(null);
       const [isDetailOpen, setIsDetailOpen] = useState(false);
 
-      // Lead Time & Actual Order Date Calculation State
       const [calcMaterial, setCalcMaterial] = useState(INITIAL_MATERIALS[0]);
       
       const targetDeliveryStr = '2026-08-31';
@@ -287,6 +177,11 @@
         leadTimeFC: INITIAL_MATERIALS[0].leadTimeFC,
         leadTimeNonFC: INITIAL_MATERIALS[0].leadTimeNonFC
       });
+
+      // Upload State & Refs
+      const fileInputRef = useRef(null);
+      const [uploadStatus, setUploadStatus] = useState({ type: '', message: '' });
+      const [isDragging, setIsDragging] = useState(false);
 
       useEffect(() => {
         if (theme === 'dark') {
@@ -336,6 +231,102 @@
           m.vendorName.toLowerCase().includes(q)
         );
       }, [materials, calcSearchQuery]);
+
+      // Xử lý đọc file Excel / CSV
+      const processFile = (file) => {
+        if (!file) return;
+
+        setUploadStatus({ type: 'info', message: 'Reading and parsing file...' });
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const firstSheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[firstSheetName];
+            const jsonRows = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+
+            if (!jsonRows || jsonRows.length === 0) {
+              setUploadStatus({ type: 'error', message: 'File is empty or invalid format.' });
+              return;
+            }
+
+            // Standardizing properties
+            const parsedMaterials = jsonRows.map((row, index) => {
+              const getVal = (keys) => {
+                for (let k of keys) {
+                  const foundKey = Object.keys(row).find(rk => rk.trim().toLowerCase() === k.toLowerCase());
+                  if (foundKey && row[foundKey] !== undefined) return row[foundKey];
+                }
+                return '';
+              };
+
+              const code = String(getVal(['Material Code', 'Code', 'Item Code', 'MaterialNo']) || `MAT-${10000 + index}`);
+              const name = String(getVal(['Material Name', 'Name', 'Description', 'Item Name']) || 'Unnamed Material');
+              
+              return {
+                id: code,
+                materialCode: code,
+                materialName: name,
+                vendorNumber: String(getVal(['Vendor Number', 'Vendor ID', 'VendorNo']) || 'VND-000'),
+                vendorName: String(getVal(['Vendor Name', 'Vendor', 'Supplier']) || 'General Supplier'),
+                origin: String(getVal(['Origin', 'Country', 'Source']) || 'Vietnam'),
+                packingSize: String(getVal(['Packing Size', 'Packing', 'Unit']) || 'Standard Pack'),
+                shelfLife: Number(getVal(['Shelf Life', 'ShelfLife (Days)'])) || 365,
+                currentPrice: Number(getVal(['Unit Price', 'Current Price', 'Price', 'Cost'])) || 0,
+                moq: Number(getVal(['MOQ', 'Minimum Order'])) || 100,
+                leadTimeFC: Number(getVal(['Lead Time FC', 'LT FC', 'Lead Time FC (Days)'])) || 14,
+                leadTimeNonFC: Number(getVal(['Lead Time Non-FC', 'LT Non-FC', 'Lead Time Non-FC (Days)'])) || 30,
+                lastUpdateDate: new Date().toISOString().split('T')[0],
+                additionalNotes: String(getVal(['Additional Notes', 'Notes', 'Remark']) || 'Imported via Excel'),
+                category: String(getVal(['Category', 'Group']) || 'General'),
+                currentStock: Number(getVal(['Current Stock', 'Stock'])) || 500,
+                monthlyConsumption: Number(getVal(['Monthly Consumption', 'Consumption'])) || 100,
+                safetyStock: Number(getVal(['Safety Stock'])) || 50,
+                forecastDemand: Number(getVal(['Forecast Demand'])) || 120
+              };
+            });
+
+            setMaterials(parsedMaterials);
+            if (parsedMaterials.length > 0) {
+              setCalcMaterial(parsedMaterials[0]);
+            }
+
+            setUploadStatus({
+              type: 'success',
+              message: `Successfully imported ${parsedMaterials.length} materials from file "${file.name}"!`
+            });
+          } catch (err) {
+            console.error(err);
+            setUploadStatus({ type: 'error', message: 'Failed to process file. Ensure it is a valid .xlsx or .csv.' });
+          }
+        };
+
+        reader.readAsArrayBuffer(file);
+      };
+
+      const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        processFile(file);
+      };
+
+      const handleDragOver = (e) => {
+        e.preventDefault();
+        setIsDragging(true);
+      };
+
+      const handleDragLeave = () => {
+        setIsDragging(false);
+      };
+
+      const handleDrop = (e) => {
+        e.preventDefault();
+        setIsDragging(false);
+        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+          processFile(e.dataTransfer.files[0]);
+        }
+      };
 
       const handleExportCSV = () => {
         const headers = [
@@ -745,15 +736,11 @@
               </div>
             )}
 
-            {/* TAB 2: LEAD TIME CALCULATOR - VISUAL UPDATED TO MATCH THE EXACT NEW DESIGN */}
+            {/* TAB 2: LEAD TIME CALCULATOR */}
             {activeTab === 'calculator' && (
               <div className="space-y-5">
-                
-                {/* Top Card: Selection & Search Header */}
                 <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    
-                    {/* Left Title */}
                     <div className="space-y-1">
                       <div className="flex items-center space-x-2">
                         <div className="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400">
@@ -768,7 +755,6 @@
                       </p>
                     </div>
 
-                    {/* Right Search Input */}
                     <div className="w-full md:w-80">
                       <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
                         SEARCH CODE, MATERIAL NAME, VENDOR...
@@ -786,10 +772,8 @@
                         />
                       </div>
                     </div>
-
                   </div>
 
-                  {/* Material Dropdown */}
                   <div className="space-y-1 pt-2">
                     <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">
                       SELECT MATERIAL ({calcFilteredMaterials.length} FOUND)
@@ -816,10 +800,7 @@
                   </div>
                 </div>
 
-                {/* Main Calculation Card Block */}
                 <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
-                  
-                  {/* Selected Material Summary Sub-Card */}
                   <div className="bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800 p-4 rounded-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                     <div className="space-y-1">
                       <span className="font-mono text-[11px] font-bold text-blue-600 dark:text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded">
@@ -845,7 +826,6 @@
                     </div>
                   </div>
 
-                  {/* Section 1: LEAD TIME CALCULATION */}
                   <div className="space-y-4">
                     <div className="flex items-center space-x-2 text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
                       <Icon name="clock" className="w-4 h-4" />
@@ -856,20 +836,15 @@
                       <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
                         Requested Delivery Date
                       </label>
-                      <div className="relative">
-                        <input
-                          type="date"
-                          value={calcInputs.requestedDeliveryDate}
-                          onChange={(e) => setCalcInputs({ ...calcInputs, requestedDeliveryDate: e.target.value })}
-                          className="w-full p-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono font-medium focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-slate-100"
-                        />
-                      </div>
+                      <input
+                        type="date"
+                        value={calcInputs.requestedDeliveryDate}
+                        onChange={(e) => setCalcInputs({ ...calcInputs, requestedDeliveryDate: e.target.value })}
+                        className="w-full p-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono font-medium focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-slate-100"
+                      />
                     </div>
 
-                    {/* Result Cards: Suggested FC & Non-FC Order Dates */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
-                      
-                      {/* Suggested Date FC */}
                       <div className="p-4 rounded-2xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/40 space-y-3">
                         <div className="flex items-center justify-between text-blue-600 dark:text-blue-400">
                           <span className="text-xs font-bold">Suggested Order Date (FC/FFC)</span>
@@ -883,7 +858,6 @@
                         </div>
                       </div>
 
-                      {/* Suggested Date Non-FC */}
                       <div className="p-4 rounded-2xl bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 space-y-3">
                         <div className="flex items-center justify-between text-amber-600 dark:text-amber-500">
                           <span className="text-xs font-bold">Suggested Order Date (Non-FC)</span>
@@ -896,11 +870,9 @@
                           Requested Delivery Date - Leadtime Non-FC ({calcMaterial.leadTimeNonFC}d)
                         </div>
                       </div>
-
                     </div>
                   </div>
 
-                  {/* Section 2: ACTUAL ORDER DATE */}
                   <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-4">
                     <div className="flex items-center space-x-2 text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
                       <Icon name="arrow-right" className="w-4 h-4" />
@@ -908,8 +880,6 @@
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      
-                      {/* Actual PR Received Date */}
                       <div className="space-y-1">
                         <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
                           Actual PR Received Date
@@ -922,7 +892,6 @@
                         />
                       </div>
 
-                      {/* Order Type Select */}
                       <div className="space-y-1">
                         <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
                           Order Type / Standard Target
@@ -942,7 +911,6 @@
                         </div>
                       </div>
 
-                      {/* Actual Leadtime Computed Box */}
                       <div className="space-y-1">
                         <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
                           Actual Leadtime
@@ -952,10 +920,8 @@
                           <span className="text-[10px] text-slate-400 font-normal">(Target: {calculatedLeadTimes.targetStandardLeadtime}d)</span>
                         </div>
                       </div>
-
                     </div>
 
-                    {/* Dynamic Status Compliance Banner */}
                     <div>
                       {calculatedLeadTimes.isShortLeadtime ? (
                         <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-500 space-y-1">
@@ -991,10 +957,8 @@
                         </div>
                       )}
                     </div>
-
                   </div>
 
-                  {/* Section 3: Calculation Formulas Box */}
                   <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800 space-y-2 text-xs">
                     <div className="flex items-center space-x-1.5 font-bold text-slate-700 dark:text-slate-300">
                       <Icon name="info" className="w-4 h-4 text-blue-500" />
@@ -1006,26 +970,65 @@
                       <p><span className="font-semibold text-slate-700 dark:text-slate-300">Actual Leadtime</span> = Requested Delivery Date - Actual PR Received Date</p>
                     </div>
                   </div>
-
                 </div>
-
               </div>
             )}
 
-            {/* TAB 3: SOURCE EXCEL */}
+            {/* TAB 3: SOURCE EXCEL - ĐÃ HOÀN THIỆN TÍNH NĂNG UPLOAD VÀ KÉO THẢ FILE THỰC TẾ */}
             {activeTab === 'excel' && (
-              <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm text-center space-y-4">
+              <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm text-center space-y-6">
                 <div className="w-16 h-16 bg-blue-500/10 text-blue-500 rounded-2xl flex items-center justify-center mx-auto">
                   <Icon name="file-spreadsheet" className="w-8 h-8" />
                 </div>
-                <h2 className="text-lg font-bold">Import Master Data Excel File</h2>
-                <p className="text-xs text-slate-400 max-w-md mx-auto">
-                  Drag and drop your updated Excel/CSV file here to refresh material codes, lead times, and unit prices across the system.
-                </p>
-                <div className="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-2xl p-10 hover:border-blue-500 transition-colors cursor-pointer max-w-lg mx-auto">
-                  <Icon name="upload" className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-                  <span className="text-xs font-semibold text-slate-500">Click to upload or drag .XLSX / .CSV</span>
+                <div>
+                  <h2 className="text-lg font-bold">Import Master Data Excel / CSV File</h2>
+                  <p className="text-xs text-slate-400 max-w-md mx-auto mt-1">
+                    Drag and drop your updated Excel (.xlsx, .xls) or CSV file here to refresh material codes, lead times, and unit prices dynamically.
+                  </p>
                 </div>
+
+                {/* Input Ẩn */}
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
+                  accept=".xlsx, .xls, .csv"
+                  className="hidden"
+                />
+
+                {/* Vùng Dropzone Hoạt Động */}
+                <div
+                  onClick={() => fileInputRef.current && fileInputRef.current.click()}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  className={`border-2 border-dashed rounded-2xl p-10 transition-all cursor-pointer max-w-lg mx-auto ${
+                    isDragging
+                      ? 'border-blue-500 bg-blue-500/10 scale-105'
+                      : 'border-slate-200 dark:border-slate-700 hover:border-blue-500 dark:hover:border-blue-400 bg-slate-50/50 dark:bg-slate-800/30'
+                  }`}
+                >
+                  <Icon name="upload" className={`w-10 h-10 mx-auto mb-3 transition-colors ${isDragging ? 'text-blue-500' : 'text-slate-400'}`} />
+                  <span className="text-xs font-bold text-slate-700 dark:text-slate-200 block">
+                    Click to select file or drag & drop here
+                  </span>
+                  <span className="text-[10px] text-slate-400 mt-1 block">
+                    Supports Microsoft Excel (.xlsx, .xls) and CSV (.csv)
+                  </span>
+                </div>
+
+                {/* Thông Báo Trạng Thái */}
+                {uploadStatus.message && (
+                  <div className={`p-4 rounded-xl max-w-lg mx-auto text-xs font-semibold ${
+                    uploadStatus.type === 'success'
+                      ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-500'
+                      : uploadStatus.type === 'error'
+                      ? 'bg-rose-500/10 border border-rose-500/30 text-rose-500'
+                      : 'bg-blue-500/10 border border-blue-500/30 text-blue-500'
+                  }`}>
+                    {uploadStatus.message}
+                  </div>
+                )}
               </div>
             )}
 
@@ -1037,7 +1040,7 @@
                   <span>System Architecture & API Specifications</span>
                 </h2>
                 <p className="text-xs text-slate-400">
-                  Documentation for PostgreSQL Schema, API endpoints, and scalable backend design for over 50,000+ materials.
+                  Documentation for PostgreSQL Schema, API endpoints, and scalable backend design.
                 </p>
                 <div className="p-4 bg-slate-950 font-mono text-xs rounded-xl text-emerald-400 overflow-x-auto">
                   <pre>{`
@@ -1057,8 +1060,6 @@ CREATE TABLE material_master (
     last_update_date DATE,
     additional_notes TEXT
 );
-
-CREATE INDEX idx_material_search ON material_master(material_code, material_name);
                   `}</pre>
                 </div>
               </div>
@@ -1070,8 +1071,6 @@ CREATE INDEX idx_material_search ON material_master(material_code, material_name
           {isDetailOpen && selectedMaterial && (
             <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
               <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-2xl w-full space-y-5 shadow-2xl text-slate-100">
-                
-                {/* Header */}
                 <div className="flex items-start justify-between">
                   <div>
                     <span className="font-mono text-xs font-bold text-blue-400 bg-blue-950/80 border border-blue-800/50 px-2.5 py-1 rounded-md">
@@ -1089,7 +1088,6 @@ CREATE INDEX idx_material_search ON material_master(material_code, material_name
                   </button>
                 </div>
 
-                {/* Grid Section */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="bg-slate-800/40 border border-slate-800 p-4 rounded-xl space-y-2">
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
@@ -1120,44 +1118,6 @@ CREATE INDEX idx_material_search ON material_master(material_code, material_name
                   </div>
                 </div>
 
-                {/* Lead Time Agreements */}
-                <div className="bg-slate-800/40 border border-slate-800 p-4 rounded-xl space-y-3">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                    LEAD TIME AGREEMENTS
-                  </span>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="bg-blue-950/30 border border-blue-900/40 p-3.5 rounded-lg">
-                      <span className="text-xs font-semibold text-blue-400 block mb-1">
-                        Contract FC / FFC Lead Time
-                      </span>
-                      <span className="text-2xl font-bold text-blue-500">
-                        {selectedMaterial.leadTimeFC} Days
-                      </span>
-                    </div>
-
-                    <div className="bg-amber-950/20 border border-amber-900/30 p-3.5 rounded-lg">
-                      <span className="text-xs font-semibold text-amber-500 block mb-1">
-                        Non-FC Spot Purchase Lead Time
-                      </span>
-                      <span className="text-2xl font-bold text-amber-500">
-                        {selectedMaterial.leadTimeNonFC} Days
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Additional Notes */}
-                <div className="bg-slate-800/40 border border-slate-800 p-4 rounded-xl">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
-                    ADDITIONAL OPERATIONAL NOTES
-                  </span>
-                  <p className="text-xs italic text-slate-300">
-                    {selectedMaterial.additionalNotes || 'No additional notes provided.'}
-                  </p>
-                </div>
-
-                {/* Footer Buttons */}
                 <div className="flex items-center justify-between pt-2">
                   <button
                     onClick={() => setIsDetailOpen(false)}
@@ -1177,7 +1137,6 @@ CREATE INDEX idx_material_search ON material_master(material_code, material_name
                     <span>Calculate Order Dates</span>
                   </button>
                 </div>
-
               </div>
             </div>
           )}
