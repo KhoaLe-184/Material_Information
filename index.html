@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="vi" class="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -29,10 +29,10 @@
   <!-- Babel CDN -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-  <!-- Lucide Icons Development / UMD -->
+  <!-- Lucide Icons UMD -->
   <script src="https://unpkg.com/lucide@latest"></script>
 
-  <!-- SheetJS CDN (Thư viện đọc file Excel/CSV trực tiếp trên Browser) -->
+  <!-- SheetJS CDN (Xử lý Excel/CSV client-side) -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <style>
@@ -43,6 +43,13 @@
       -ms-overflow-style: none;
       scrollbar-width: none;
     }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fadeIn {
+      animation: fadeIn 0.2s ease-out forwards;
+    }
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans antialiased">
@@ -52,6 +59,7 @@
   <script type="text/babel">
     const { useState, useMemo, useEffect, useRef } = React;
 
+    // Component render Lucide Icons linh hoạt cho UMD
     const Icon = ({ name, className = "w-4 h-4" }) => {
       const containerRef = useRef(null);
       useEffect(() => {
@@ -130,6 +138,111 @@
         monthlyConsumption: 15000,
         safetyStock: 10000,
         forecastDemand: 16000
+      },
+      {
+        id: 'MAT-10088',
+        materialCode: 'MAT-10088',
+        materialName: 'Stainless Steel Hex Bolt M8x30mm 316',
+        vendorNumber: 'VND-801',
+        vendorName: 'Apex Metals & Alloys Corp',
+        origin: 'Germany',
+        packingSize: '1,000 pcs / Box',
+        shelfLife: 3650,
+        currentPrice: 0.45,
+        moq: 2000,
+        leadTimeFC: 7,
+        leadTimeNonFC: 14,
+        lastUpdateDate: '2026-07-10',
+        additionalNotes: 'Standard inventory item. Always maintain safety buffer.',
+        category: 'Fasteners',
+        currentStock: 8500,
+        monthlyConsumption: 2500,
+        safetyStock: 1500,
+        forecastDemand: 2800
+      },
+      {
+        id: 'MAT-70211',
+        materialCode: 'MAT-70211',
+        materialName: 'Industrial Synthetic Lubricant Oil ISO VG 220',
+        vendorNumber: 'VND-812',
+        vendorName: 'Vanguard Chemical Solutions',
+        origin: 'USA',
+        packingSize: '208 Litres / Steel Drum',
+        shelfLife: 365,
+        currentPrice: 850.00,
+        moq: 5,
+        leadTimeFC: 14,
+        leadTimeNonFC: 28,
+        lastUpdateDate: '2026-05-18',
+        additionalNotes: 'Hazardous handling protocols apply during transport.',
+        category: 'Chemicals',
+        currentStock: 4,
+        monthlyConsumption: 6,
+        safetyStock: 3,
+        forecastDemand: 7
+      },
+      {
+        id: 'MAT-90145',
+        materialCode: 'MAT-90145',
+        materialName: 'Precision Optical Glass Lens 50mm f/1.4',
+        vendorNumber: 'VND-815',
+        vendorName: 'OptiTech Photonics Inc',
+        origin: 'Taiwan',
+        packingSize: '50 pcs / Foam Padded Case',
+        shelfLife: 1825,
+        currentPrice: 145.00,
+        moq: 50,
+        leadTimeFC: 25,
+        leadTimeNonFC: 45,
+        lastUpdateDate: '2026-07-02',
+        additionalNotes: 'Requires dust-free cleanroom storage.',
+        category: 'Optics',
+        currentStock: 120,
+        monthlyConsumption: 40,
+        safetyStock: 30,
+        forecastDemand: 45
+      },
+      {
+        id: 'MAT-20833',
+        materialCode: 'MAT-20833',
+        materialName: 'Corrugated Shipping Box 400x300x300mm Heavy Duty',
+        vendorNumber: 'VND-820',
+        vendorName: 'Mekong Packaging Ltd',
+        origin: 'Vietnam',
+        packingSize: '100 Flat pcs / Pallet',
+        shelfLife: 180,
+        currentPrice: 1.20,
+        moq: 1000,
+        leadTimeFC: 5,
+        leadTimeNonFC: 10,
+        lastUpdateDate: '2026-07-29',
+        additionalNotes: 'Keep dry. High humidity reduces structural rating.',
+        category: 'Packaging',
+        currentStock: 1500,
+        monthlyConsumption: 3000,
+        safetyStock: 1000,
+        forecastDemand: 3200
+      },
+      {
+        id: 'MAT-60199',
+        materialCode: 'MAT-60199',
+        materialName: 'Lithium Iron Phosphate Battery Cell 3.2V 100Ah',
+        vendorNumber: 'VND-825',
+        vendorName: 'SinoPower Energy Tech',
+        origin: 'China',
+        packingSize: '12 Cells / Insulated Box',
+        shelfLife: 90,
+        currentPrice: 68.00,
+        moq: 240,
+        leadTimeFC: 40,
+        leadTimeNonFC: 75,
+        lastUpdateDate: '2026-07-20',
+        additionalNotes: 'Strict UN38.3 lithium transport compliance required.',
+        category: 'Energy',
+        currentStock: 180,
+        monthlyConsumption: 200,
+        safetyStock: 100,
+        forecastDemand: 220
       }
     ];
 
@@ -150,7 +263,7 @@
     };
 
     function App() {
-      const [materials, setMaterials] = useState(INITIAL_MATERIALS);
+      const [materials] = useState(INITIAL_MATERIALS);
       const [activeTab, setActiveTab] = useState('directory'); 
       const [theme, setTheme] = useState('dark');
       const [userRole, setUserRole] = useState('Admin');
@@ -162,13 +275,15 @@
       const [viewMode, setViewMode] = useState('table');
 
       const [calcSearchQuery, setCalcSearchQuery] = useState('');
+      const [isCalcSearchOpen, setIsCalcSearchOpen] = useState(false);
+
       const [selectedMaterial, setSelectedMaterial] = useState(null);
       const [isDetailOpen, setIsDetailOpen] = useState(false);
 
       const [calcMaterial, setCalcMaterial] = useState(INITIAL_MATERIALS[0]);
       
-      const targetDeliveryStr = '2026-08-31';
-      const defaultPrDateStr = '2026-08-06';
+      const targetDeliveryStr = new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0];
+      const defaultPrDateStr = new Date(Date.now() + 5 * 86400000).toISOString().split('T')[0];
 
       const [calcInputs, setCalcInputs] = useState({
         requestedDeliveryDate: targetDeliveryStr,
@@ -178,10 +293,13 @@
         leadTimeNonFC: INITIAL_MATERIALS[0].leadTimeNonFC
       });
 
-      // Upload State & Refs
-      const fileInputRef = useRef(null);
-      const [uploadStatus, setUploadStatus] = useState({ type: '', message: '' });
-      const [isDragging, setIsDragging] = useState(false);
+      const [manualInputs, setManualInputs] = useState({
+        requestedDeliveryDate: targetDeliveryStr,
+        actualPrReceivedDate: defaultPrDateStr,
+        orderType: 'FC',
+        leadTimeFC: '',
+        leadTimeNonFC: ''
+      });
 
       useEffect(() => {
         if (theme === 'dark') {
@@ -232,102 +350,6 @@
         );
       }, [materials, calcSearchQuery]);
 
-      // Xử lý đọc file Excel / CSV
-      const processFile = (file) => {
-        if (!file) return;
-
-        setUploadStatus({ type: 'info', message: 'Reading and parsing file...' });
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          try {
-            const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
-            const firstSheetName = workbook.SheetNames[0];
-            const worksheet = workbook.Sheets[firstSheetName];
-            const jsonRows = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
-
-            if (!jsonRows || jsonRows.length === 0) {
-              setUploadStatus({ type: 'error', message: 'File is empty or invalid format.' });
-              return;
-            }
-
-            // Standardizing properties
-            const parsedMaterials = jsonRows.map((row, index) => {
-              const getVal = (keys) => {
-                for (let k of keys) {
-                  const foundKey = Object.keys(row).find(rk => rk.trim().toLowerCase() === k.toLowerCase());
-                  if (foundKey && row[foundKey] !== undefined) return row[foundKey];
-                }
-                return '';
-              };
-
-              const code = String(getVal(['Material Code', 'Code', 'Item Code', 'MaterialNo']) || `MAT-${10000 + index}`);
-              const name = String(getVal(['Material Name', 'Name', 'Description', 'Item Name']) || 'Unnamed Material');
-              
-              return {
-                id: code,
-                materialCode: code,
-                materialName: name,
-                vendorNumber: String(getVal(['Vendor Number', 'Vendor ID', 'VendorNo']) || 'VND-000'),
-                vendorName: String(getVal(['Vendor Name', 'Vendor', 'Supplier']) || 'General Supplier'),
-                origin: String(getVal(['Origin', 'Country', 'Source']) || 'Vietnam'),
-                packingSize: String(getVal(['Packing Size', 'Packing', 'Unit']) || 'Standard Pack'),
-                shelfLife: Number(getVal(['Shelf Life', 'ShelfLife (Days)'])) || 365,
-                currentPrice: Number(getVal(['Unit Price', 'Current Price', 'Price', 'Cost'])) || 0,
-                moq: Number(getVal(['MOQ', 'Minimum Order'])) || 100,
-                leadTimeFC: Number(getVal(['Lead Time FC', 'LT FC', 'Lead Time FC (Days)'])) || 14,
-                leadTimeNonFC: Number(getVal(['Lead Time Non-FC', 'LT Non-FC', 'Lead Time Non-FC (Days)'])) || 30,
-                lastUpdateDate: new Date().toISOString().split('T')[0],
-                additionalNotes: String(getVal(['Additional Notes', 'Notes', 'Remark']) || 'Imported via Excel'),
-                category: String(getVal(['Category', 'Group']) || 'General'),
-                currentStock: Number(getVal(['Current Stock', 'Stock'])) || 500,
-                monthlyConsumption: Number(getVal(['Monthly Consumption', 'Consumption'])) || 100,
-                safetyStock: Number(getVal(['Safety Stock'])) || 50,
-                forecastDemand: Number(getVal(['Forecast Demand'])) || 120
-              };
-            });
-
-            setMaterials(parsedMaterials);
-            if (parsedMaterials.length > 0) {
-              setCalcMaterial(parsedMaterials[0]);
-            }
-
-            setUploadStatus({
-              type: 'success',
-              message: `Successfully imported ${parsedMaterials.length} materials from file "${file.name}"!`
-            });
-          } catch (err) {
-            console.error(err);
-            setUploadStatus({ type: 'error', message: 'Failed to process file. Ensure it is a valid .xlsx or .csv.' });
-          }
-        };
-
-        reader.readAsArrayBuffer(file);
-      };
-
-      const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        processFile(file);
-      };
-
-      const handleDragOver = (e) => {
-        e.preventDefault();
-        setIsDragging(true);
-      };
-
-      const handleDragLeave = () => {
-        setIsDragging(false);
-      };
-
-      const handleDrop = (e) => {
-        e.preventDefault();
-        setIsDragging(false);
-        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-          processFile(e.dataTransfer.files[0]);
-        }
-      };
-
       const handleExportCSV = () => {
         const headers = [
           'Material Code,Material Name,Vendor Number,Vendor Name,Origin,Packing Size,Shelf Life (Days),Current Price ($),MOQ,Lead Time FC (Days),Lead Time Non-FC (Days),Last Update Date,Additional Notes'
@@ -365,6 +387,8 @@
           leadTimeFC: mat.leadTimeFC,
           leadTimeNonFC: mat.leadTimeNonFC
         }));
+        setCalcSearchQuery(`${mat.materialCode} - ${mat.materialName}`);
+        setIsCalcSearchOpen(false);
         setActiveTab('calculator');
       };
 
@@ -404,6 +428,46 @@
         };
       }, [calcInputs]);
 
+      const calculatedManualLeadTimes = useMemo(() => {
+        const getOrderDate = (deliveryDateStr, days) => {
+          if (!deliveryDateStr || days === '' || days === null || isNaN(days)) return 'N/A';
+          const d = new Date(deliveryDateStr);
+          d.setDate(d.getDate() - Number(days));
+          return d.toISOString().split('T')[0];
+        };
+
+        const suggestedFC = getOrderDate(manualInputs.requestedDeliveryDate, manualInputs.leadTimeFC);
+        const suggestedNonFC = getOrderDate(manualInputs.requestedDeliveryDate, manualInputs.leadTimeNonFC);
+
+        let actualLeadtime = 0;
+        let targetLeadtime = null;
+        let isShortLeadtime = false;
+        let daysDiff = 0;
+
+        if (manualInputs.requestedDeliveryDate && manualInputs.actualPrReceivedDate) {
+          const deliveryDate = new Date(manualInputs.requestedDeliveryDate);
+          const prDate = new Date(manualInputs.actualPrReceivedDate);
+          const diffTime = deliveryDate.getTime() - prDate.getTime();
+          actualLeadtime = Math.round(diffTime / (1000 * 3600 * 24));
+
+          const selectedTarget = manualInputs.orderType === 'FC' ? manualInputs.leadTimeFC : manualInputs.leadTimeNonFC;
+          if (selectedTarget !== '' && !isNaN(selectedTarget)) {
+            targetLeadtime = Number(selectedTarget);
+            isShortLeadtime = actualLeadtime < targetLeadtime;
+            daysDiff = actualLeadtime - targetLeadtime;
+          }
+        }
+
+        return {
+          suggestedFC,
+          suggestedNonFC,
+          actualLeadtime,
+          targetLeadtime,
+          isShortLeadtime,
+          daysDiff
+        };
+      }, [manualInputs]);
+
       return (
         <div className={`min-h-screen transition-colors duration-200 ${theme === 'dark' ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'}`}>
           
@@ -414,7 +478,7 @@
               <div className="flex items-center space-x-3 w-full md:w-auto justify-between md:justify-start">
                 <div className="flex items-center space-x-3">
                   <div className="p-2.5 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-xl text-white shadow-lg shadow-blue-500/20">
-                    <Icon name="box" className="w-6 h-6" />
+                    <Icon name="package" className="w-6 h-6" />
                   </div>
                   <div>
                     <h1 className="text-lg font-bold tracking-tight bg-gradient-to-r from-blue-600 to-indigo-500 bg-clip-text text-transparent">
@@ -431,7 +495,7 @@
                     onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
                     className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
                   >
-                    {theme === 'dark' ? <Icon name="sun" className="w-4 h-4" /> : <Icon name="moon" className="w-4 h-4" />}
+                    {theme === 'dark' ? <Icon name="sun" className="w-4 h-4 text-amber-400" /> : <Icon name="moon" className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
@@ -441,6 +505,7 @@
                 {[
                   { id: 'directory', label: 'Master Directory', icon: 'layers' },
                   { id: 'calculator', label: 'Lead Time Calculation', icon: 'calculator' },
+                  { id: 'manual', label: 'Leadtime_Manual', icon: 'file-edit' },
                   { id: 'excel', label: 'Source', icon: 'file-spreadsheet' },
                   { id: 'docs', label: 'System Specs & APIs', icon: 'terminal' }
                 ].map((tab) => {
@@ -495,9 +560,12 @@
 
             {/* TAB 1: MASTER DIRECTORY */}
             {activeTab === 'directory' && (
-              <div className="space-y-6">
+              <div className="space-y-6 animate-fadeIn">
+                
                 <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+                  
                   <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
+                    
                     <div className="relative w-full lg:w-96">
                       <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
                         <Icon name="search" className="w-4 h-4" />
@@ -507,7 +575,7 @@
                         placeholder="Search Code, Material Name, Vendor..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-9 pr-8 py-2 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-slate-100"
+                        className="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-slate-100"
                       />
                       {searchQuery && (
                         <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
@@ -550,9 +618,11 @@
                         </button>
                       </div>
                     </div>
+
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 pt-2 border-t border-slate-100 dark:border-slate-800">
+                    
                     <div>
                       <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Filter Vendor</label>
                       <select
@@ -596,11 +666,13 @@
                         onClick={() => { setSearchQuery(''); setSelectedVendor('All'); setSelectedOrigin('All'); setSortBy('code'); }}
                         className="w-full py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-semibold rounded-lg border border-slate-200 dark:border-slate-700 flex items-center justify-center space-x-1"
                       >
-                        <Icon name="refresh-cw" className="w-3.5 h-3.5" />
+                        <Icon name="rotate-ccw" className="w-3.5 h-3.5" />
                         <span>Reset Filters</span>
                       </button>
                     </div>
+
                   </div>
+
                 </div>
 
                 {viewMode === 'table' ? (
@@ -675,6 +747,13 @@
                               </tr>
                             );
                           })}
+                          {filteredMaterials.length === 0 && (
+                            <tr>
+                              <td colSpan="8" className="text-center py-12 text-slate-400">
+                                No materials found matching search criteria.
+                              </td>
+                            </tr>
+                          )}
                         </tbody>
                       </table>
                     </div>
@@ -715,16 +794,16 @@
                           <div className="flex items-center justify-between mt-5 pt-3 border-t border-slate-100 dark:border-slate-800">
                             <button
                               onClick={() => { setSelectedMaterial(m); setIsDetailOpen(true); }}
-                              className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-xs font-semibold rounded-lg text-slate-700 dark:text-slate-200 flex items-center space-x-1"
+                              className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded-lg flex items-center space-x-1"
                             >
-                              <Icon name="eye" className="w-3.5 h-3.5" />
+                              <Icon name="eye" className="w-3 h-3" />
                               <span>Details</span>
                             </button>
                             <button
                               onClick={() => openCalculatorForMaterial(m)}
-                              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg flex items-center space-x-1 shadow-sm"
+                              className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-lg flex items-center space-x-1 shadow-sm"
                             >
-                              <Icon name="calculator" className="w-3.5 h-3.5" />
+                              <Icon name="calculator" className="w-3 h-3" />
                               <span>Calculate</span>
                             </button>
                           </div>
@@ -733,31 +812,31 @@
                     })}
                   </div>
                 )}
+
               </div>
             )}
 
-            {/* TAB 2: LEAD TIME CALCULATOR */}
+            {/* TAB 2: LEAD TIME CALCULATION */}
             {activeTab === 'calculator' && (
-              <div className="space-y-5">
+              <div className="space-y-6 animate-fadeIn max-w-4xl mx-auto">
+                
                 <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="space-y-1">
+                  <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div>
                       <div className="flex items-center space-x-2">
-                        <div className="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400">
-                          <Icon name="calculator" className="w-5 h-5" />
-                        </div>
-                        <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">
+                        <Icon name="calculator" className="w-6 h-6 text-blue-500" />
+                        <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
                           Lead Time Calculation
                         </h2>
                       </div>
-                      <p className="text-xs text-slate-400 pl-8">
-                        Select a material code, calculate suggested order dates, and track actual PR lead time compliance.
+                      <p className="text-xs text-slate-400 mt-1">
+                        Gõ từ khóa để xem gợi ý vật tư, nhấp chọn item để tự động tính Suggested Order Date.
                       </p>
                     </div>
 
-                    <div className="w-full md:w-80">
-                      <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                        SEARCH CODE, MATERIAL NAME, VENDOR...
+                    <div className="w-full md:w-96 relative">
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">
+                        Tìm kiếm Vật tư (Mã, Tên, NCC)
                       </label>
                       <div className="relative">
                         <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
@@ -765,378 +844,732 @@
                         </div>
                         <input
                           type="text"
-                          placeholder="Search Code, Material Name, Vendor..."
+                          placeholder="Gõ mã, tên vật tư hoặc vendor..."
                           value={calcSearchQuery}
-                          onChange={(e) => setCalcSearchQuery(e.target.value)}
-                          className="w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-slate-100"
+                          onFocus={() => setIsCalcSearchOpen(true)}
+                          onChange={(e) => {
+                            setCalcSearchQuery(e.target.value);
+                            setIsCalcSearchOpen(true);
+                          }}
+                          className="w-full pl-9 pr-8 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-slate-100 shadow-sm"
                         />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-1 pt-2">
-                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                      SELECT MATERIAL ({calcFilteredMaterials.length} FOUND)
-                    </label>
-                    <div className="relative">
-                      <select
-                        value={calcMaterial.id}
-                        onChange={(e) => {
-                          const mat = materials.find(m => m.id === e.target.value);
-                          if (mat) openCalculatorForMaterial(mat);
-                        }}
-                        className="w-full p-3 pr-10 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold text-slate-800 dark:text-slate-100 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
-                      >
-                        {calcFilteredMaterials.map(m => (
-                          <option key={m.id} value={m.id}>
-                            {m.materialCode} - {m.materialName} ({m.vendorName})
-                          </option>
-                        ))}
-                      </select>
-                      <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
-                        <Icon name="chevron-down" className="w-4 h-4" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
-                  <div className="bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800 p-4 rounded-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                    <div className="space-y-1">
-                      <span className="font-mono text-[11px] font-bold text-blue-600 dark:text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded">
-                        {calcMaterial.materialCode}
-                      </span>
-                      <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
-                        {calcMaterial.materialName}
-                      </h3>
-                      <p className="text-xs text-slate-400">
-                        Vendor: <span className="text-slate-600 dark:text-slate-300 font-medium">{calcMaterial.vendorName}</span> ({calcMaterial.origin})
-                      </p>
-                    </div>
-
-                    <div className="flex items-center space-x-3 self-end md:self-auto">
-                      <div className="px-4 py-2 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/50 text-center">
-                        <span className="text-[10px] font-bold text-blue-500 uppercase tracking-wider block">LEAD TIME FC/FFC</span>
-                        <span className="text-sm font-bold text-blue-600 dark:text-blue-400">{calcMaterial.leadTimeFC} Days</span>
-                      </div>
-                      <div className="px-4 py-2 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/40 text-center">
-                        <span className="text-[10px] font-bold text-amber-600 dark:text-amber-500 uppercase tracking-wider block">LEAD TIME NON-FC</span>
-                        <span className="text-sm font-bold text-amber-600 dark:text-amber-500">{calcMaterial.leadTimeNonFC} Days</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <div className="flex items-center space-x-2 text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
-                      <Icon name="clock" className="w-4 h-4" />
-                      <span>LEAD TIME CALCULATION</span>
-                    </div>
-
-                    <div className="space-y-1 max-w-xs">
-                      <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
-                        Requested Delivery Date
-                      </label>
-                      <input
-                        type="date"
-                        value={calcInputs.requestedDeliveryDate}
-                        onChange={(e) => setCalcInputs({ ...calcInputs, requestedDeliveryDate: e.target.value })}
-                        className="w-full p-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono font-medium focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-slate-100"
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
-                      <div className="p-4 rounded-2xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/40 space-y-3">
-                        <div className="flex items-center justify-between text-blue-600 dark:text-blue-400">
-                          <span className="text-xs font-bold">Suggested Order Date (FC/FFC)</span>
-                          <Icon name="calendar" className="w-4 h-4" />
-                        </div>
-                        <div className="text-2xl font-extrabold text-slate-900 dark:text-slate-50 font-mono tracking-tight">
-                          {calculatedLeadTimes.suggestedFC}
-                        </div>
-                        <div className="text-[11px] text-slate-400 pt-1 border-t border-blue-100 dark:border-blue-900/30">
-                          Requested Delivery Date - Leadtime FC ({calcMaterial.leadTimeFC}d)
-                        </div>
-                      </div>
-
-                      <div className="p-4 rounded-2xl bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 space-y-3">
-                        <div className="flex items-center justify-between text-amber-600 dark:text-amber-500">
-                          <span className="text-xs font-bold">Suggested Order Date (Non-FC)</span>
-                          <Icon name="calendar" className="w-4 h-4" />
-                        </div>
-                        <div className="text-2xl font-extrabold text-slate-900 dark:text-slate-50 font-mono tracking-tight">
-                          {calculatedLeadTimes.suggestedNonFC}
-                        </div>
-                        <div className="text-[11px] text-slate-400 pt-1 border-t border-amber-100 dark:border-amber-900/30">
-                          Requested Delivery Date - Leadtime Non-FC ({calcMaterial.leadTimeNonFC}d)
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-4">
-                    <div className="flex items-center space-x-2 text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
-                      <Icon name="arrow-right" className="w-4 h-4" />
-                      <span>ACTUAL ORDER DATE</span>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      <div className="space-y-1">
-                        <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
-                          Actual PR Received Date
-                        </label>
-                        <input
-                          type="date"
-                          value={calcInputs.actualPrReceivedDate}
-                          onChange={(e) => setCalcInputs({ ...calcInputs, actualPrReceivedDate: e.target.value })}
-                          className="w-full p-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-mono font-medium focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-slate-100"
-                        />
-                      </div>
-
-                      <div className="space-y-1">
-                        <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
-                          Order Type / Standard Target
-                        </label>
-                        <div className="relative">
-                          <select
-                            value={calcInputs.orderType}
-                            onChange={(e) => setCalcInputs({ ...calcInputs, orderType: e.target.value })}
-                            className="w-full p-2.5 pr-8 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold appearance-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-slate-100 cursor-pointer"
+                        {calcSearchQuery && (
+                          <button
+                            onClick={() => {
+                              setCalcSearchQuery('');
+                              setIsCalcSearchOpen(true);
+                            }}
+                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                           >
-                            <option value="FC">FC / FFC Order ({calcMaterial.leadTimeFC} Days Target)</option>
-                            <option value="Non-FC">Non-FC Order ({calcMaterial.leadTimeNonFC} Days Target)</option>
-                          </select>
-                          <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
-                            <Icon name="chevron-down" className="w-4 h-4" />
-                          </div>
-                        </div>
+                            <Icon name="x" className="w-3.5 h-3.5" />
+                          </button>
+                        )}
                       </div>
 
-                      <div className="space-y-1">
-                        <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
-                          Actual Leadtime
-                        </label>
-                        <div className="p-2.5 bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-800 dark:text-slate-100 flex items-center justify-between">
-                          <span>{calculatedLeadTimes.actualLeadtime} Days</span>
-                          <span className="text-[10px] text-slate-400 font-normal">(Target: {calculatedLeadTimes.targetStandardLeadtime}d)</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div>
-                      {calculatedLeadTimes.isShortLeadtime ? (
-                        <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-500 space-y-1">
-                          <div className="flex items-center space-x-2">
-                            <div className="p-1 rounded-full bg-rose-500 text-white">
-                              <Icon name="alert-triangle" className="w-3.5 h-3.5" />
-                            </div>
-                            <span className="px-2 py-0.5 rounded-md bg-rose-600 text-white text-xs font-bold">
-                              Warning: Short leadtime
-                            </span>
-                            <span className="text-xs font-bold">({calculatedLeadTimes.daysDiff} Days Shortage)</span>
+                      {isCalcSearchOpen && (
+                        <div className="absolute left-0 right-0 top-full mt-1.5 z-50 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl max-h-64 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800 animate-fadeIn">
+                          <div className="p-2 text-[10px] font-bold text-slate-400 uppercase bg-slate-50 dark:bg-slate-800/50">
+                            Kết quả gợi ý ({calcFilteredMaterials.length})
                           </div>
-                          <p className="text-xs text-rose-400 pt-1">
-                            Actual Leadtime ({calculatedLeadTimes.actualLeadtime} days) is less than standard target leadtime ({calculatedLeadTimes.targetStandardLeadtime} days). High risk of material delay.
-                          </p>
-                        </div>
-                      ) : (
-                        <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 space-y-1">
-                          <div className="flex items-center space-x-2">
-                            <div className="p-1 rounded-full bg-emerald-600 text-white">
-                              <Icon name="check" className="w-3.5 h-3.5" />
+                          {calcFilteredMaterials.length > 0 ? (
+                            calcFilteredMaterials.map((m) => (
+                              <div
+                                key={m.id}
+                                onClick={() => openCalculatorForMaterial(m)}
+                                className="p-3 hover:bg-blue-50 dark:hover:bg-blue-950/40 cursor-pointer transition-colors flex items-center justify-between group"
+                              >
+                                <div className="space-y-0.5 max-w-[80%]">
+                                  <div className="flex items-center space-x-2">
+                                    <span className="font-mono text-[10px] font-bold text-blue-600 dark:text-blue-400 bg-blue-500/10 px-1.5 py-0.5 rounded">
+                                      {m.materialCode}
+                                    </span>
+                                    <span className="font-semibold text-xs text-slate-800 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 truncate">
+                                      {m.materialName}
+                                    </span>
+                                  </div>
+                                  <p className="text-[10px] text-slate-400 truncate">
+                                    {m.vendorName} • {m.origin}
+                                  </p>
+                                </div>
+                                <div className="text-right text-[10px] font-medium text-slate-500">
+                                  <span className="text-blue-500 font-bold">{m.leadTimeFC}d</span> / <span className="text-amber-500 font-bold">{m.leadTimeNonFC}d</span>
+                                </div>
+                              </div>
+                            ))
+                          ) : (
+                            <div className="p-4 text-center text-xs text-slate-400">
+                              Không tìm thấy vật tư phù hợp
                             </div>
-                            <span className="px-2 py-0.5 rounded-md bg-emerald-600 text-white text-xs font-bold">
-                              Follow leadtime
-                            </span>
-                            <span className="text-xs font-bold text-emerald-500 font-mono">
-                              (+{calculatedLeadTimes.daysDiff} Days Buffer)
-                            </span>
-                          </div>
-                          <p className="text-xs text-emerald-600/80 dark:text-emerald-400/80 pt-1">
-                            Actual Leadtime ({calculatedLeadTimes.actualLeadtime} days) meets or exceeds standard target lead time ({calculatedLeadTimes.targetStandardLeadtime} days). Procurement cycle is compliant.
-                          </p>
+                          )}
                         </div>
                       )}
                     </div>
                   </div>
-
-                  <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-800 space-y-2 text-xs">
-                    <div className="flex items-center space-x-1.5 font-bold text-slate-700 dark:text-slate-300">
-                      <Icon name="info" className="w-4 h-4 text-blue-500" />
-                      <span>Calculation Formulas</span>
-                    </div>
-                    <div className="space-y-1 font-mono text-[11px] text-slate-500 dark:text-slate-400 pl-5">
-                      <p><span className="font-semibold text-slate-700 dark:text-slate-300">Suggested Order Date (FC/FFC)</span> = Requested Delivery Date - Leadtime FC/FFC ({calcMaterial.leadTimeFC} days)</p>
-                      <p><span className="font-semibold text-slate-700 dark:text-slate-300">Suggested Order Date (Non-FC)</span> = Requested Delivery Date - Leadtime Non-FC ({calcMaterial.leadTimeNonFC} days)</p>
-                      <p><span className="font-semibold text-slate-700 dark:text-slate-300">Actual Leadtime</span> = Requested Delivery Date - Actual PR Received Date</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* TAB 3: SOURCE EXCEL - ĐÃ HOÀN THIỆN TÍNH NĂNG UPLOAD VÀ KÉO THẢ FILE THỰC TẾ */}
-            {activeTab === 'excel' && (
-              <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm text-center space-y-6">
-                <div className="w-16 h-16 bg-blue-500/10 text-blue-500 rounded-2xl flex items-center justify-center mx-auto">
-                  <Icon name="file-spreadsheet" className="w-8 h-8" />
-                </div>
-                <div>
-                  <h2 className="text-lg font-bold">Import Master Data Excel / CSV File</h2>
-                  <p className="text-xs text-slate-400 max-w-md mx-auto mt-1">
-                    Drag and drop your updated Excel (.xlsx, .xls) or CSV file here to refresh material codes, lead times, and unit prices dynamically.
-                  </p>
                 </div>
 
-                {/* Input Ẩn */}
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={handleFileChange}
-                  accept=".xlsx, .xls, .csv"
-                  className="hidden"
-                />
-
-                {/* Vùng Dropzone Hoạt Động */}
-                <div
-                  onClick={() => fileInputRef.current && fileInputRef.current.click()}
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  onDrop={handleDrop}
-                  className={`border-2 border-dashed rounded-2xl p-10 transition-all cursor-pointer max-w-lg mx-auto ${
-                    isDragging
-                      ? 'border-blue-500 bg-blue-500/10 scale-105'
-                      : 'border-slate-200 dark:border-slate-700 hover:border-blue-500 dark:hover:border-blue-400 bg-slate-50/50 dark:bg-slate-800/30'
-                  }`}
-                >
-                  <Icon name="upload" className={`w-10 h-10 mx-auto mb-3 transition-colors ${isDragging ? 'text-blue-500' : 'text-slate-400'}`} />
-                  <span className="text-xs font-bold text-slate-700 dark:text-slate-200 block">
-                    Click to select file or drag & drop here
-                  </span>
-                  <span className="text-[10px] text-slate-400 mt-1 block">
-                    Supports Microsoft Excel (.xlsx, .xls) and CSV (.csv)
-                  </span>
-                </div>
-
-                {/* Thông Báo Trạng Thái */}
-                {uploadStatus.message && (
-                  <div className={`p-4 rounded-xl max-w-lg mx-auto text-xs font-semibold ${
-                    uploadStatus.type === 'success'
-                      ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-500'
-                      : uploadStatus.type === 'error'
-                      ? 'bg-rose-500/10 border border-rose-500/30 text-rose-500'
-                      : 'bg-blue-500/10 border border-blue-500/30 text-blue-500'
-                  }`}>
-                    {uploadStatus.message}
-                  </div>
+                {isCalcSearchOpen && (
+                  <div
+                    className="fixed inset-0 z-40 bg-transparent"
+                    onClick={() => setIsCalcSearchOpen(false)}
+                  />
                 )}
+
+                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
+                  
+                  {calcMaterial && (
+                    <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                      <div>
+                        <span className="px-2 py-0.5 bg-blue-500/10 text-blue-500 font-mono text-xs font-bold rounded">
+                          {calcMaterial.materialCode}
+                        </span>
+                        <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100 mt-1">
+                          {calcMaterial.materialName}
+                        </h3>
+                        <p className="text-xs text-slate-400 mt-0.5">
+                          Vendor: <span className="font-medium text-slate-700 dark:text-slate-300">{calcMaterial.vendorName}</span> ({calcMaterial.origin})
+                        </p>
+                      </div>
+                      <div className="flex items-center space-x-3 text-xs">
+                        <div className="px-3 py-1.5 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/50 rounded-lg text-center">
+                          <span className="text-[10px] text-slate-400 block font-semibold uppercase">Lead Time FC/FFC</span>
+                          <span className="font-bold text-blue-600 dark:text-blue-400">{calcInputs.leadTimeFC} Days</span>
+                        </div>
+                        <div className="px-3 py-1.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/50 rounded-lg text-center">
+                          <span className="text-[10px] text-slate-400 block font-semibold uppercase">Lead Time Non-FC</span>
+                          <span className="font-bold text-amber-600 dark:text-amber-400">{calcInputs.leadTimeNonFC} Days</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="space-y-6">
+                    <div>
+                      <h3 className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider mb-3 flex items-center space-x-1.5">
+                        <Icon name="clock" className="w-4 h-4" />
+                        <span>Lead Time Calculation</span>
+                      </h3>
+
+                      <div className="max-w-xs mb-4">
+                        <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                          Requested Delivery Date
+                        </label>
+                        <input
+                          type="date"
+                          value={calcInputs.requestedDeliveryDate}
+                          onChange={(e) => setCalcInputs({ ...calcInputs, requestedDeliveryDate: e.target.value })}
+                          className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-slate-100 cursor-pointer"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="p-4 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50/50 dark:from-blue-950/30 dark:to-indigo-950/20 border border-blue-200 dark:border-blue-800/50 space-y-1.5">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold text-blue-600 dark:text-blue-400">
+                              Suggested Order Date (FC/FFC)
+                            </span>
+                            <Icon name="calendar" className="w-4 h-4 text-blue-500" />
+                          </div>
+                          <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                            {calculatedLeadTimes.suggestedFC}
+                          </div>
+                          <div className="text-[10px] font-mono text-slate-500 dark:text-slate-400 pt-1 border-t border-blue-100 dark:border-blue-900/40">
+                            Requested Delivery Date - Leadtime FC ({calcInputs.leadTimeFC}d)
+                          </div>
+                        </div>
+
+                        <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50/50 dark:from-amber-950/30 dark:to-orange-950/20 border border-amber-200 dark:border-amber-800/50 space-y-1.5">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold text-amber-600 dark:text-amber-400">
+                              Suggested Order Date (Non-FC)
+                            </span>
+                            <Icon name="calendar" className="w-4 h-4 text-amber-500" />
+                          </div>
+                          <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                            {calculatedLeadTimes.suggestedNonFC}
+                          </div>
+                          <div className="text-[10px] font-mono text-slate-500 dark:text-slate-400 pt-1 border-t border-amber-100 dark:border-amber-900/40">
+                            Requested Delivery Date - Leadtime Non-FC ({calcInputs.leadTimeNonFC}d)
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="border-t border-slate-100 dark:border-slate-800 pt-6 space-y-4">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider flex items-center space-x-1.5">
+                          <Icon name="arrow-right" className="w-4 h-4" />
+                          <span>Actual Order Date</span>
+                        </h3>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                            Actual PR Received Date
+                          </label>
+                          <input
+                            type="date"
+                            value={calcInputs.actualPrReceivedDate}
+                            onChange={(e) => setCalcInputs({ ...calcInputs, actualPrReceivedDate: e.target.value })}
+                            className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 cursor-pointer"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                            Order Type / Standard Target
+                          </label>
+                          <select
+                            value={calcInputs.orderType}
+                            onChange={(e) => setCalcInputs({ ...calcInputs, orderType: e.target.value })}
+                            className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 cursor-pointer"
+                          >
+                            <option value="FC">FC / FFC Order ({calcInputs.leadTimeFC} Days Target)</option>
+                            <option value="Non-FC">Non-FC Order ({calcInputs.leadTimeNonFC} Days Target)</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                            Actual Leadtime
+                          </label>
+                          <div className="p-2.5 bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-slate-100 flex items-center justify-between">
+                            <span>{calculatedLeadTimes.actualLeadtime} Days</span>
+                            <span className="text-[10px] text-slate-400 font-normal">
+                              (Target: {calculatedLeadTimes.targetStandardLeadtime}d)
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="pt-2">
+                        {calculatedLeadTimes.isShortLeadtime ? (
+                          <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 flex items-start space-x-3 animate-pulse">
+                            <Icon name="alert-triangle" className="w-5 h-5 flex-shrink-0 mt-0.5 text-rose-500" />
+                            <div className="space-y-1 text-xs">
+                              <div className="flex items-center space-x-2">
+                                <span className="font-bold text-sm px-2.5 py-0.5 bg-rose-500 text-white rounded-lg">
+                                  Short leadtime
+                                </span>
+                                <span className="font-mono text-xs text-rose-700 dark:text-rose-300">
+                                  (Short by {Math.abs(calculatedLeadTimes.daysDiff)} Days)
+                                </span>
+                              </div>
+                              <p className="text-slate-600 dark:text-slate-300 text-[11px] pt-1">
+                                Actual Leadtime ({calculatedLeadTimes.actualLeadtime} days) is shorter than required standard lead time ({calculatedLeadTimes.targetStandardLeadtime} days). High risk of delivery delay.
+                              </p>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 flex items-start space-x-3">
+                            <Icon name="check-circle" className="w-5 h-5 flex-shrink-0 mt-0.5 text-emerald-500" />
+                            <div className="space-y-1 text-xs">
+                              <div className="flex items-center space-x-2">
+                                <span className="font-bold text-sm px-2.5 py-0.5 bg-emerald-600 text-white rounded-lg">
+                                  Follow leadtime
+                                </span>
+                                <span className="font-mono text-xs text-emerald-700 dark:text-emerald-300">
+                                  (+{calculatedLeadTimes.daysDiff} Days Buffer)
+                                </span>
+                              </div>
+                              <p className="text-slate-600 dark:text-slate-300 text-[11px] pt-1">
+                                Actual Leadtime ({calculatedLeadTimes.actualLeadtime} days) meets or exceeds standard target lead time ({calculatedLeadTimes.targetStandardLeadtime} days). Procurement cycle is compliant.
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
               </div>
             )}
 
-            {/* TAB 4: SYSTEM SPECS */}
-            {activeTab === 'docs' && (
-              <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
-                <h2 className="text-base font-bold flex items-center space-x-2">
-                  <Icon name="terminal" className="w-5 h-5 text-indigo-500" />
-                  <span>System Architecture & API Specifications</span>
-                </h2>
-                <p className="text-xs text-slate-400">
-                  Documentation for PostgreSQL Schema, API endpoints, and scalable backend design.
-                </p>
-                <div className="p-4 bg-slate-950 font-mono text-xs rounded-xl text-emerald-400 overflow-x-auto">
-                  <pre>{`
--- Material Master Table Schema
-CREATE TABLE material_master (
-    material_code VARCHAR(50) PRIMARY KEY,
-    material_name VARCHAR(255) NOT NULL,
-    vendor_number VARCHAR(50),
-    vendor_name VARCHAR(255),
-    origin VARCHAR(100),
-    packing_size VARCHAR(100),
-    shelf_life INT,
-    current_price DECIMAL(12,2),
-    moq INT,
-    lead_time_fc INT,
-    lead_time_non_fc INT,
-    last_update_date DATE,
-    additional_notes TEXT
-);
-                  `}</pre>
+            {/* TAB 3: LEADTIME_MANUAL */}
+            {activeTab === 'manual' && (
+              <div className="space-y-6 animate-fadeIn max-w-4xl mx-auto">
+                
+                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="flex items-center space-x-2">
+                        <Icon name="file-edit" className="w-6 h-6 text-indigo-500" />
+                        <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+                          Leadtime_Manual
+                        </h2>
+                      </div>
+                      <p className="text-xs text-slate-400 mt-1">
+                        Nhập thủ công LEAD TIME FC/FFC hoặc LEAD TIME NON-FC (không bắt buộc nhập cả hai) để tự động tính Suggested Order Date.
+                      </p>
+                    </div>
+
+                    <button
+                      onClick={() => setManualInputs({
+                        requestedDeliveryDate: targetDeliveryStr,
+                        actualPrReceivedDate: defaultPrDateStr,
+                        orderType: 'FC',
+                        leadTimeFC: '',
+                        leadTimeNonFC: ''
+                      })}
+                      className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-600 dark:text-slate-300 text-xs font-semibold rounded-lg border border-slate-200 dark:border-slate-700 flex items-center space-x-1"
+                    >
+                      <Icon name="rotate-ccw" className="w-3.5 h-3.5" />
+                      <span>Đặt lại</span>
+                    </button>
+                  </div>
                 </div>
+
+                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
+                  
+                  <div className="space-y-4">
+                    <h3 className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider flex items-center space-x-1.5">
+                      <Icon name="clock" className="w-4 h-4" />
+                      <span>1. Nhập Ngày Giao Hàng & Lead Time Thủ Công</span>
+                    </h3>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                          Requested Delivery Date <span className="text-rose-500">*</span>
+                        </label>
+                        <input
+                          type="date"
+                          value={manualInputs.requestedDeliveryDate}
+                          onChange={(e) => setManualInputs({ ...manualInputs, requestedDeliveryDate: e.target.value })}
+                          className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 cursor-pointer"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                          LEAD TIME FC/FFC (Ngày)
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          placeholder="Để trống nếu không áp dụng"
+                          value={manualInputs.leadTimeFC}
+                          onChange={(e) => setManualInputs({ ...manualInputs, leadTimeFC: e.target.value })}
+                          className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 dark:text-slate-100"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                          LEAD TIME NON-FC (Ngày)
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          placeholder="Để trống nếu không áp dụng"
+                          value={manualInputs.leadTimeNonFC}
+                          onChange={(e) => setManualInputs({ ...manualInputs, leadTimeNonFC: e.target.value })}
+                          className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-800 dark:text-slate-100"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                      
+                      <div className="p-4 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50/50 dark:from-blue-950/30 dark:to-indigo-950/20 border border-blue-200 dark:border-blue-800/50 space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-blue-600 dark:text-blue-400">
+                            Suggested Order Date (FC/FFC)
+                          </span>
+                          <Icon name="calendar" className="w-4 h-4 text-blue-500" />
+                        </div>
+                        <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                          {calculatedManualLeadTimes.suggestedFC}
+                        </div>
+                        <div className="text-[10px] font-mono text-slate-500 dark:text-slate-400 pt-1 border-t border-blue-100 dark:border-blue-900/40">
+                          {manualInputs.leadTimeFC !== '' ? `Requested Delivery Date - ${manualInputs.leadTimeFC} ngày` : 'Chưa nhập Lead Time FC/FFC'}
+                        </div>
+                      </div>
+
+                      <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50/50 dark:from-amber-950/30 dark:to-orange-950/20 border border-amber-200 dark:border-amber-800/50 space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-amber-600 dark:text-amber-400">
+                            Suggested Order Date (Non-FC)
+                          </span>
+                          <Icon name="calendar" className="w-4 h-4 text-amber-500" />
+                        </div>
+                        <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                          {calculatedManualLeadTimes.suggestedNonFC}
+                        </div>
+                        <div className="text-[10px] font-mono text-slate-500 dark:text-slate-400 pt-1 border-t border-amber-100 dark:border-amber-900/40">
+                          {manualInputs.leadTimeNonFC !== '' ? `Requested Delivery Date - ${manualInputs.leadTimeNonFC} ngày` : 'Chưa nhập Lead Time Non-FC'}
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+
+                  <div className="border-t border-slate-100 dark:border-slate-800 pt-6 space-y-4">
+                    <h3 className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider flex items-center space-x-1.5">
+                      <Icon name="arrow-right" className="w-4 h-4" />
+                      <span>2. Kiểm Tra Actual Order Date</span>
+                    </h3>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                          Actual PR Received Date
+                        </label>
+                        <input
+                          type="date"
+                          value={manualInputs.actualPrReceivedDate}
+                          onChange={(e) => setManualInputs({ ...manualInputs, actualPrReceivedDate: e.target.value })}
+                          className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 cursor-pointer"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                          Loại Đơn Hàng Đối Chiếu
+                        </label>
+                        <select
+                          value={manualInputs.orderType}
+                          onChange={(e) => setManualInputs({ ...manualInputs, orderType: e.target.value })}
+                          className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-slate-100 cursor-pointer"
+                        >
+                          <option value="FC">FC / FFC ({manualInputs.leadTimeFC || 'Chưa nhập'} Ngày)</option>
+                          <option value="Non-FC">Non-FC ({manualInputs.leadTimeNonFC || 'Chưa nhập'} Ngày)</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                          Actual Leadtime Thực Tế
+                        </label>
+                        <div className="p-2.5 bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-slate-100 flex items-center justify-between">
+                          <span>{calculatedManualLeadTimes.actualLeadtime} Ngày</span>
+                          {calculatedManualLeadTimes.targetLeadtime !== null && (
+                            <span className="text-[10px] text-slate-400 font-normal">
+                              (Target: {calculatedManualLeadTimes.targetLeadtime}d)
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {calculatedManualLeadTimes.targetLeadtime !== null && (
+                      <div className="pt-2">
+                        {calculatedManualLeadTimes.isShortLeadtime ? (
+                          <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 flex items-start space-x-3">
+                            <Icon name="alert-triangle" className="w-5 h-5 flex-shrink-0 mt-0.5 text-rose-500" />
+                            <div className="space-y-1 text-xs">
+                              <div className="flex items-center space-x-2">
+                                <span className="font-bold text-sm px-2.5 py-0.5 bg-rose-500 text-white rounded-lg">
+                                  Short leadtime
+                                </span>
+                                <span className="font-mono text-xs text-rose-700 dark:text-rose-300">
+                                  (Bị thiếu {Math.abs(calculatedManualLeadTimes.daysDiff)} Ngày)
+                                </span>
+                              </div>
+                              <p className="text-slate-600 dark:text-slate-300 text-[11px] pt-1">
+                                Actual Leadtime ({calculatedManualLeadTimes.actualLeadtime} ngày) ngắn hơn Lead time yêu cầu ({calculatedManualLeadTimes.targetLeadtime} ngày). Rủi ro cao trễ hạn giao hàng.
+                              </p>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 flex items-start space-x-3">
+                            <Icon name="check-circle" className="w-5 h-5 flex-shrink-0 mt-0.5 text-emerald-500" />
+                            <div className="space-y-1 text-xs">
+                              <div className="flex items-center space-x-2">
+                                <span className="font-bold text-sm px-2.5 py-0.5 bg-emerald-600 text-white rounded-lg">
+                                  Follow leadtime
+                                </span>
+                                <span className="font-mono text-xs text-emerald-700 dark:text-emerald-300">
+                                  (Dư {calculatedManualLeadTimes.daysDiff} Ngày)
+                                </span>
+                              </div>
+                              <p className="text-slate-600 dark:text-slate-300 text-[11px] pt-1">
+                                Actual Leadtime ({calculatedManualLeadTimes.actualLeadtime} ngày) đạt hoặc vượt Lead time tiêu chuẩn ({calculatedManualLeadTimes.targetLeadtime} ngày).
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                  </div>
+
+                </div>
+
+              </div>
+            )}
+
+            {/* TAB 4: EXCEL DATA PIPELINE */}
+            {activeTab === 'excel' && (
+              <div className="space-y-6 animate-fadeIn max-w-4xl mx-auto">
+                
+                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center space-x-2">
+                        <Icon name="file-spreadsheet" className="w-5 h-5 text-emerald-500" />
+                        <span>Material Master Excel ETL Import Pipeline</span>
+                      </h2>
+                      <p className="text-xs text-slate-400 mt-1">
+                        Upload formatted spreadsheet to batch ingest and update material master records.
+                      </p>
+                    </div>
+
+                    <button
+                      onClick={handleExportCSV}
+                      className="px-3.5 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded-xl flex items-center space-x-1.5 border border-slate-200 dark:border-slate-700"
+                    >
+                      <Icon name="download" className="w-3.5 h-3.5 text-emerald-500" />
+                      <span>Download Excel Template</span>
+                    </button>
+                  </div>
+
+                  <div className="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-2xl p-8 text-center hover:border-blue-500 transition-colors bg-slate-50/50 dark:bg-slate-800/30">
+                    <div className="mx-auto mb-3 flex justify-center">
+                      <Icon name="upload" className="w-10 h-10 text-blue-500" />
+                    </div>
+                    <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">
+                      Drag and drop your Material Master .xlsx or .csv file here
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-1 max-w-md mx-auto">
+                      Supports standard SAP/ERP master data columns: Material Code, Vendor Number, Price, Lead Time FC/Non-FC, MOQ, and Shelf Life.
+                    </p>
+
+                    <div className="mt-5">
+                      <label className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl cursor-pointer shadow-lg shadow-blue-500/20 inline-flex items-center space-x-2">
+                        <Icon name="file-spreadsheet" className="w-4 h-4" />
+                        <span>Browse Computer</span>
+                        <input
+                          type="file"
+                          accept=".csv, .xlsx"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files[0];
+                            if (file) {
+                              alert(`Simulated pipeline successfully validated and staged file: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`);
+                            }
+                          }}
+                        />
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                      <div className="flex items-center space-x-2 text-xs font-bold text-slate-700 dark:text-slate-200">
+                        <Icon name="check-circle" className="w-4 h-4 text-emerald-500" />
+                        <span>Schema Validation</span>
+                      </div>
+                      <p className="text-[11px] text-slate-400 mt-1">Automatic verification of non-null Material Codes & Prices.</p>
+                    </div>
+
+                    <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                      <div className="flex items-center space-x-2 text-xs font-bold text-slate-700 dark:text-slate-200">
+                        <Icon name="check-circle" className="w-4 h-4 text-emerald-500" />
+                        <span>Vendor Cross-Check</span>
+                      </div>
+                      <p className="text-[11px] text-slate-400 mt-1">Validates Vendor Number against ERP Supplier Master table.</p>
+                    </div>
+
+                    <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl">
+                      <div className="flex items-center space-x-2 text-xs font-bold text-slate-700 dark:text-slate-200">
+                        <Icon name="check-circle" className="w-4 h-4 text-emerald-500" />
+                        <span>Audit Trail Log</span>
+                      </div>
+                      <p className="text-[11px] text-slate-400 mt-1">Tracks editor identity and timestamp for version control.</p>
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+            )}
+
+            {/* TAB 5: TECHNICAL SPECS */}
+            {activeTab === 'docs' && (
+              <div className="space-y-6 animate-fadeIn max-w-5xl mx-auto">
+                
+                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
+                  
+                  <div>
+                    <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center space-x-2">
+                      <Icon name="terminal" className="w-6 h-6 text-indigo-500" />
+                      <span>Enterprise System Architecture & Specifications</span>
+                    </h2>
+                    <p className="text-xs text-slate-400 mt-1">
+                      Full stack architecture design, relational PostgreSQL schema, RESTful OpenAPI definitions, and scalability blueprints.
+                    </p>
+                  </div>
+
+                  <div className="p-5 bg-slate-900 text-slate-100 rounded-xl border border-slate-800 font-mono text-xs space-y-3 overflow-x-auto">
+                    <div className="flex items-center justify-between text-indigo-400 font-bold border-b border-slate-800 pb-2">
+                      <span>1. High-Level Architecture Blueprint</span>
+                      <span className="text-[10px] text-slate-500">React + Node/Python + PostgreSQL</span>
+                    </div>
+                    <pre className="text-slate-300 leading-relaxed text-[11px]">
+{`+-------------------------------------------------------------------------------+
+|                       REACT / TAILWIND FRONTEND SPA                           |
+|  [ Master Directory ]      [ Lead Time Calculator ]      [ Excel ETL Pipeline ]|
++---------------------------------------+---------------------------------------+
+                                        | HTTPS / REST API
+                                        v
++-------------------------------------------------------------------------------+
+|                     API GATEWAY / NODE.JS (EXPRESS) / PYTHON (FLASK)          |
+|  - JWT Authentication & RBAC Middleware (Admin, Procurement, Viewer)          |
+|  - Rate Limiter & Input Validation Engine                                    |
+|  - Excel / OpenPyXL Parsing Batch Worker Pipeline                             |
++-------------------+-----------------------------------+-----------------------+
+                    |                                   |
+         Read/Write |                                   | Caching Layer
+                    v                                   v
++---------------------------------------+   +-----------------------------------+
+|     POSTGRESQL RELATIONAL DATABASE    |   |     REDIS IN-MEMORY CACHE         |
+| - B-Tree Indexes on Material Code     |   | - 50k SKU Directory Query Caching |
+| - Full-Text Search (pg_trgm extension)|   | - Active User Session Tokens      |
+| - Audit Logging Trigger Chains        |   | - Fast Lead Time Lookups          |
++---------------------------------------+   +-----------------------------------+`}
+                    </pre>
+                  </div>
+
+                  <div className="p-5 bg-slate-900 text-slate-100 rounded-xl border border-slate-800 font-mono text-xs space-y-3">
+                    <div className="flex items-center justify-between text-emerald-400 font-bold border-b border-slate-800 pb-2">
+                      <span>2. Relational Database DDL Schema (PostgreSQL)</span>
+                      <span className="text-[10px] text-slate-500">Indexed & Scalable for 50k+ SKUs</span>
+                    </div>
+                    <pre className="text-slate-300 text-[11px] overflow-x-auto">
+{`-- Material Master Table Definition
+CREATE TABLE material_master (
+    material_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    material_code VARCHAR(50) UNIQUE NOT NULL,
+    material_name VARCHAR(255) NOT NULL,
+    vendor_id UUID REFERENCES vendor_master(vendor_id),
+    country_of_origin VARCHAR(100) NOT NULL,
+    packing_size VARCHAR(100),
+    shelf_life_days INT DEFAULT 365,
+    current_unit_price NUMERIC(12, 4) NOT NULL,
+    minimum_order_quantity INT DEFAULT 1,
+    lead_time_fc_days INT NOT NULL,
+    lead_time_non_fc_days INT NOT NULL,
+    additional_notes TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Fast Search Indexes
+CREATE INDEX idx_material_code ON material_master(material_code);
+CREATE INDEX idx_material_search ON material_master USING gin (material_name gin_trgm_ops);`}
+                    </pre>
+                  </div>
+
+                  <div className="p-5 bg-slate-900 text-slate-100 rounded-xl border border-slate-800 font-mono text-xs space-y-3">
+                    <div className="flex items-center justify-between text-amber-400 font-bold border-b border-slate-800 pb-2">
+                      <span>3. RESTful API Specification</span>
+                      <span className="text-[10px] text-slate-500">OpenAPI Endpoint Mapping</span>
+                    </div>
+                    <div className="space-y-2 text-[11px]">
+                      <div className="flex items-center space-x-2">
+                        <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-400 rounded font-bold">GET</span>
+                        <span className="text-slate-200">/api/v1/materials?search=...&vendor=...&page=1&limit=50</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <span className="px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded font-bold">POST</span>
+                        <span className="text-slate-200">/api/v1/materials/import-excel</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <span className="px-2 py-0.5 bg-purple-500/20 text-purple-400 rounded font-bold">POST</span>
+                        <span className="text-slate-200">/api/v1/analytics/leadtime-calculate</span>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
               </div>
             )}
 
           </main>
 
-          {/* DETAIL MODAL */}
+          {/* Detail View Modal */}
           {isDetailOpen && selectedMaterial && (
-            <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-2xl w-full space-y-5 shadow-2xl text-slate-100">
-                <div className="flex items-start justify-between">
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-fadeIn">
+              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl space-y-6">
+                
+                <div className="flex items-start justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
                   <div>
-                    <span className="font-mono text-xs font-bold text-blue-400 bg-blue-950/80 border border-blue-800/50 px-2.5 py-1 rounded-md">
+                    <span className="px-2.5 py-1 bg-blue-500/10 text-blue-500 font-mono text-xs font-bold rounded-lg">
                       {selectedMaterial.materialCode}
                     </span>
-                    <h2 className="text-xl font-bold mt-2 text-slate-50">
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mt-2">
                       {selectedMaterial.materialName}
-                    </h2>
+                    </h3>
                   </div>
-                  <button 
-                    onClick={() => setIsDetailOpen(false)} 
-                    className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800/80 transition-colors"
+                  <button
+                    onClick={() => setIsDetailOpen(false)}
+                    className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
                   >
                     <Icon name="x" className="w-5 h-5" />
                   </button>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-slate-800/40 border border-slate-800 p-4 rounded-xl space-y-2">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
-                      VENDOR & ORIGIN
-                    </span>
-                    <h3 className="font-bold text-sm text-slate-100">
-                      {selectedMaterial.vendorName}
-                    </h3>
-                    <div className="text-xs text-slate-400 space-y-1">
-                      <p>Vendor ID: <span className="text-slate-300">{selectedMaterial.vendorNumber}</span></p>
-                      <p>Country of Origin: <span className="text-slate-300">{selectedMaterial.origin}</span></p>
-                      <p>Packing: <span className="text-slate-300">{selectedMaterial.packingSize}</span></p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                  
+                  <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 space-y-2">
+                    <span className="font-bold text-slate-500 uppercase tracking-wider block text-[10px]">Vendor & Origin</span>
+                    <div className="font-semibold text-slate-900 dark:text-slate-100">{selectedMaterial.vendorName}</div>
+                    <div className="text-slate-500">Vendor ID: {selectedMaterial.vendorNumber}</div>
+                    <div className="text-slate-500">Country of Origin: {selectedMaterial.origin}</div>
+                    <div className="text-slate-500">Packing: {selectedMaterial.packingSize}</div>
+                  </div>
+
+                  <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 space-y-2">
+                    <span className="font-bold text-slate-500 uppercase tracking-wider block text-[10px]">Commercial Metrics</span>
+                    <div className="text-base font-bold text-emerald-500">${selectedMaterial.currentPrice.toFixed(2)} / unit</div>
+                    <div className="text-slate-500">MOQ: {selectedMaterial.moq.toLocaleString()} pcs</div>
+                    <div className="text-slate-500">Shelf Life: {selectedMaterial.shelfLife} Days</div>
+                    <div className="text-slate-500">Last Modified: {selectedMaterial.lastUpdateDate}</div>
+                  </div>
+
+                  <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 space-y-2 col-span-1 md:col-span-2">
+                    <span className="font-bold text-slate-500 uppercase tracking-wider block text-[10px]">Lead Time Agreements</span>
+                    <div className="grid grid-cols-2 gap-4 pt-1">
+                      <div className="p-3 bg-blue-500/10 rounded-lg text-blue-500">
+                        <span className="block text-[10px] font-bold">Contract FC / FFC Lead Time</span>
+                        <span className="text-lg font-bold">{selectedMaterial.leadTimeFC} Days</span>
+                      </div>
+                      <div className="p-3 bg-amber-500/10 rounded-lg text-amber-500">
+                        <span className="block text-[10px] font-bold">Non-FC Spot Purchase Lead Time</span>
+                        <span className="text-lg font-bold">{selectedMaterial.leadTimeNonFC} Days</span>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="bg-slate-800/40 border border-slate-800 p-4 rounded-xl space-y-2">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
-                      COMMERCIAL METRICS
-                    </span>
-                    <div className="text-xl font-bold text-emerald-400">
-                      ${selectedMaterial.currentPrice.toFixed(2)} <span className="text-xs font-normal text-slate-400">/ unit</span>
-                    </div>
-                    <div className="text-xs text-slate-400 space-y-1 pt-1">
-                      <p>MOQ: <span className="text-slate-300">{selectedMaterial.moq.toLocaleString()} pcs</span></p>
-                      <p>Shelf Life: <span className="text-slate-300">{selectedMaterial.shelfLife} Days</span></p>
-                      <p>Last Modified: <span className="text-slate-300">{selectedMaterial.lastUpdateDate}</span></p>
-                    </div>
+                  <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 col-span-1 md:col-span-2 text-slate-600 dark:text-slate-300">
+                    <span className="font-bold text-slate-500 uppercase tracking-wider block text-[10px] mb-1">Additional Operational Notes</span>
+                    <p className="italic text-xs">{selectedMaterial.additionalNotes || 'No special handling requirements specified.'}</p>
                   </div>
+
                 </div>
 
-                <div className="flex items-center justify-between pt-2">
+                <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-4">
                   <button
                     onClick={() => setIsDetailOpen(false)}
-                    className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-lg transition-colors"
+                    className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold rounded-xl"
                   >
                     Close Window
                   </button>
-
                   <button
-                    onClick={() => {
-                      setIsDetailOpen(false);
-                      openCalculatorForMaterial(selectedMaterial);
-                    }}
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-lg flex items-center space-x-1.5 shadow-md shadow-blue-500/20 transition-all"
+                    onClick={() => { setIsDetailOpen(false); openCalculatorForMaterial(selectedMaterial); }}
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl flex items-center space-x-1.5 shadow-md shadow-blue-500/20"
                   >
-                    <Icon name="calculator" className="w-4 h-4" />
+                    <Icon name="calculator" className="w-3.5 h-3.5" />
                     <span>Calculate Order Dates</span>
                   </button>
                 </div>
+
               </div>
             </div>
           )}
@@ -1145,7 +1578,8 @@ CREATE TABLE material_master (
       );
     }
 
-    const root = ReactDOM.createRoot(document.getElementById('root'));
+    const rootElement = document.getElementById('root');
+    const root = ReactDOM.createRoot(rootElement);
     root.render(<App />);
   </script>
 </body>
